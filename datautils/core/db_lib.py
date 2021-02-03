@@ -6,10 +6,10 @@ functions, though the common ones are also wrapped by the DB class.
 
 from dataclasses import dataclass # type: ignore
 from enum import Enum # type: ignore
-from typing import (Optional, Tuple) # type: ignore
+from typing import (Tuple, Union) # type: ignore
 
 import pandas as pd # type: ignore
-import sqlite3
+import sqlite3 # type: ignore
 
 ################################################################################
 
@@ -17,18 +17,15 @@ class DB_Type(Enum):
     SQLITE = 1
     POSTGRES = 2
 
-class Code(Enum):
-    OK = 0
-    ERROR = 1
+@dataclass(frozen=True)
+class OK:
+    msg: str = "OK"
 
-@dataclass
-class Status():
-    def __init__(self, code: Code, error_msg : Optional[Exception] = None):
-        self.code = code
-        self.error_msg = error_msg
-    def show(self) -> str:
-        c = 'OK' if self.code is Code.OK else 'Error'
-        return c + '' if not self.error_msg else ': {}'.format(self.error_msg)
+@dataclass(frozen=True)
+class Error:
+    msg: str
+
+Status = Union[OK, Error]
 
 Conn = sqlite3.Connection
 Cursor = sqlite3.Cursor
@@ -42,10 +39,11 @@ class DB:
                  db_type: DB_Type = DB_Type.SQLITE,
                  log_level: str = 'WARNING'
                  ) -> None:
-        self.INVALID_STATUS = Status(Code.ERROR, Exception('Unknown DB_Type'))
+        self.INVALID_STATUS = Error('Unknown DB_Type value.')
         self.db_name = db_name
         self.db_type = db_type
         self.log_level = log_level
+        self.status : Status
         self.__connect__()
 
     def __connect__(self) -> None:
@@ -53,7 +51,7 @@ class DB:
         if self.db_type is DB_Type.SQLITE:
             self.conn = sqlite3.connect(self.db_name)
             self.cur = self.conn.cursor()
-            self.status = Status(Code.OK)
+            self.status = OK()
         else:
             self.status = self.INVALID_STATUS
 
@@ -101,11 +99,12 @@ def query_once(db_name: str,
 
 def close(conn) -> Status:
     """Close DB connection object."""
+    status : Status
     try:
         conn.close()
-        status = Status(Code.OK)
+        status = OK()
     except Exception as e:
-        status = Status(Code.ERROR, e)
+        status = Error(str(e))
     return status
 
 ################################################################################
@@ -113,8 +112,9 @@ def close(conn) -> Status:
 
 def sqlite_query(cur: Cursor, q: str, hdr: bool) -> Tuple[list, Status]:
     """Execute SQL query string."""
+    status: Status
     if not valid_query(q):
-        return [], Status(Code.ERROR, Exception('Invalid query {}'.format(q)))
+        return [], Error('Invalid query {}'.format(q))  # Status(Code.ERROR, Exception('Invalid query {}'.format(q)))
     try:
         result = cur.execute(q)
         if hdr:
@@ -122,34 +122,35 @@ def sqlite_query(cur: Cursor, q: str, hdr: bool) -> Tuple[list, Status]:
             ret = [cols] + result.fetchall()
         else:
             ret = result.fetchall()
-        status = Status(Code.OK)
+        status = OK()
     except Exception as e:
-        ret, status = [], Status(Code.ERROR, e)
+        ret, status = [], Error(str(e))
     return ret, status
 
 def sqlite_query_df(cur: Cursor, q: str) -> Tuple[pd.DataFrame, Status]:
     """Execute SQL query string and return result as DataFrame."""
     ret, status = sqlite_query(cur, q, True)
-    if status.code is not Code.OK or len(ret) < 2:
+    if status != OK() or len(ret) < 2:
         return pd.DataFrame(), status
     df = pd.DataFrame(ret[1:], columns=ret[0])
     return df, status
 
 def sqlite_insert(conn: Conn, cur: Cursor, table: str, rows: list) -> Status:
     """Attempt to execute SQL insertion into specified table."""
+    status: Status
     ret, _ = sqlite_query(cur, 'SELECT * FROM {} LIMIT 1'.format(table), True)
     if not ret or len(ret[0]) != len(rows[0]):
         e = '\nError: insertion not completed.'
         e += '\ndb {} cols vs input {} cols\n'.format(len(ret[0]), len(rows[0]))
-        return Status(Code.ERROR, Exception(e))
+        return Error(str(e))
 
     try:
         cols = '(' + ','.join(['?'] * len(ret[0])) + ')'
         cur.executemany('INSERT INTO {} VALUES {}'.format(table, cols), rows)
         conn.commit()
-        status = Status(Code.OK)
+        status = OK()
     except Exception as e:
-        status = Status(Code.ERROR, e)
+        status = Error(str(e))
 
     return status
 

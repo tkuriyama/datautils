@@ -35,22 +35,22 @@ class TestSqlite:
 
         ret, status = db.query(q)
         assert ret == [('HelloWorld', 7, 3.14)]
-        assert status.code is db_lib.Code.OK
+        assert status == db_lib.OK()
 
         ret, status = db.query(q, True)
         assert ret == [['TextCol', 'IntCol', 'FloatCol'],
                        ('HelloWorld', 7, 3.14)]
-        assert status.code is db_lib.Code.OK
+        assert status == db_lib.OK()
 
         ret, status = db.query(q, True, True)
         ret = db_lib.query_once(path, q, True, True)
         df = pd.DataFrame([('HelloWorld', 7, 3.14)],
                           columns=['TextCol', 'IntCol', 'FloatCol'])
         assert ret.equals(df)
-        assert status.code is db_lib.Code.OK
+        assert status == db_lib.OK()
 
         status = db.close()
-        assert status.code is db_lib.Code.OK
+        assert status == db_lib.OK()
 
 ################################################################################
 
