@@ -1,5 +1,4 @@
-"""
-A lightweight database connection wrapper for common operations.
+"""A lightweight database connection wrapper for common operations.
 For ease of testing and modularity, database operations are standalone
 functions, though the common ones are also wrapped by the DB class.
 """
