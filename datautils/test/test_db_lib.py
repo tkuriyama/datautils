@@ -1,5 +1,4 @@
-"""
-Pytest suite for db_lib
+"""Pytest suite for db_lib.
 """
 
 import pandas as pd # type: ignore
