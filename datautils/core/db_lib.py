@@ -6,10 +6,17 @@ functions, though the common ones are also wrapped by the DB class.
 
 from dataclasses import dataclass # type: ignore
 from enum import Enum # type: ignore
-from typing import (Tuple, Union) # type: ignore
-
+import logging # type: ignore
 import pandas as pd # type: ignore
+from typing import (Tuple, Union) # type: ignore
 import sqlite3 # type: ignore
+
+from datautils.core import log_setup # type: ignore
+
+################################################################################
+# Initialize Logging -- set logging level to > 50 to suppress all output
+
+logger = log_setup.init_file_log(__name__, logging.INFO)
 
 ################################################################################
 
@@ -19,7 +26,7 @@ class DB_Type(Enum):
 
 @dataclass(frozen=True)
 class OK:
-    msg: str = "OK"
+    msg: str = 'OK'
 
 @dataclass(frozen=True)
 class Error:
@@ -52,8 +59,10 @@ class DB:
             self.conn = sqlite3.connect(self.db_name)
             self.cur = self.conn.cursor()
             self.status = OK()
+            logger.info('Connected to Sqlite DB: {}'.format(self.db_name))
         else:
             self.status = self.INVALID_STATUS
+            logger.error('DB conn failed: {}'.format(self.INVALID_STATUS.msg))
 
     def query(self,
               q: str,
@@ -66,6 +75,7 @@ class DB:
                            sqlite_query_df(self.cur, q))
         else:
             ret, status = [], self.INVALID_STATUS
+            logger.error('Query failed: {}'.format(self.INVALID_STATUS.msg))
         return ret, status
 
     def insert(self, table: str, rows: list) -> Status:
@@ -74,6 +84,7 @@ class DB:
             status = sqlite_insert(self.conn, self.cur, table, rows)
         else:
             status = self.INVALID_STATUS
+            logger.error('Insert failed: {}'.format(self.INVALID_STATUS.msg))
         return status
 
     def close(self) -> Status:
@@ -97,14 +108,16 @@ def query_once(db_name: str,
     c.close()
     return ret
 
-def close(conn) -> Status:
+def close(conn: Conn) -> Status:
     """Close DB connection object."""
     status : Status
     try:
         conn.close()
         status = OK()
+        logger.info('Closed DB conn.')
     except Exception as e:
         status = Error(str(e))
+        logger.error('Failed to close DB conn: {}'.format(str(e)))
     return status
 
 ################################################################################
