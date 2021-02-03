@@ -1,42 +1,48 @@
-import sys
+"""A lightweight SMTP email sender.
+"""
 
-from smtplib import SMTP_SSL as SMTP
-from email.mime.text import MIMEText
+from email.mime.text import MIMEText # type: ignore
+from smtplib import SMTP_SSL as SMTP # type: ignore
+import sys # type: ignore
+from typing import (List, TypedDict) # type: ignore
 
-def send(subject, fromAddr, toAddrs, body, server, auth):
-    """Send email.
-    Args
-        sbject: string of subject
-        fromAddr: string of sender addr
-        toAddrs: list of string of recipieent addrs
-        body: string of message
-        server: string of SMTP server
-        auth: dict of auth strings with keys 'user', 'pass'
-    """
+################################################################################
+
+class AuthDict(TypedDict):
+    user: str
+    pwd: str
+
+Html = str
+
+################################################################################
+
+def send(subject: str,
+         fromAddr: str,
+         toAddrs: List[str],
+         body: Html,
+         server: str,
+         auth: AuthDict
+         ) -> None:
+    """Send SMTP email with Html body."""
+
     fromAddr = fromAddr.strip()
     toAddrs = [addr.strip() for addr in toAddrs]
 
     # hard-coded assertions on addresses, e.g. domain checks
     assert all('@' in addr for addr in [fromAddr] + toAddrs)
 
-    html_body = '<html><body>'
-    html_body += '<pre style="font-family: "courier new; font-size: 1rem;">'
-    html_body += body + '</pre></body></html>'
-    
-    msg = MIMEText(html_body, 'html')
+    msg = MIMEText(body, 'html')
     msg['Subject'] = subject
     msg['From'] = fromAddr
     msg['To'] = ','.join(toAddrs)
 
     conn = SMTP(server)
     conn.set_debuglevel(False)
-    conn.login(auth['user'], auth['pass'])
+    conn.login(auth['user'], auth['pwd'])
+
     try:
         conn.sendmail(fromAddr, ','.join(toAddrs), msg.as_string())
     except Exception as e:
         sys.exit('Send failed: {}'.format(e))
     finally:
         conn.quit()
-        print('Sent message!')
-
-
