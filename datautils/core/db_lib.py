@@ -127,7 +127,8 @@ def sqlite_query(cur: Cursor, q: str, hdr: bool) -> Tuple[list, Status]:
     """Execute SQL query string."""
     status: Status
     if not valid_query(q):
-        return [], Error('Invalid query {}'.format(q))  # Status(Code.ERROR, Exception('Invalid query {}'.format(q)))
+        logger.error('Invalid query {}'.format(q))
+        return [], Error('Invalid query {}'.format(q))
     try:
         result = cur.execute(q)
         if hdr:
@@ -136,7 +137,9 @@ def sqlite_query(cur: Cursor, q: str, hdr: bool) -> Tuple[list, Status]:
         else:
             ret = result.fetchall()
         status = OK()
+        logger.info('Query executed: {}'.format(q))
     except Exception as e:
+        logger.error('Query exception: {}; {}'.format(q, str(e)))
         ret, status = [], Error(str(e))
     return ret, status
 
@@ -144,6 +147,7 @@ def sqlite_query_df(cur: Cursor, q: str) -> Tuple[pd.DataFrame, Status]:
     """Execute SQL query string and return result as DataFrame."""
     ret, status = sqlite_query(cur, q, True)
     if status != OK() or len(ret) < 2:
+        logger.debug('Invalid status or not enough data, returning empty DF')
         return pd.DataFrame(), status
     df = pd.DataFrame(ret[1:], columns=ret[0])
     return df, status
@@ -151,10 +155,12 @@ def sqlite_query_df(cur: Cursor, q: str) -> Tuple[pd.DataFrame, Status]:
 def sqlite_insert(conn: Conn, cur: Cursor, table: str, rows: list) -> Status:
     """Attempt to execute SQL insertion into specified table."""
     status: Status
+
     ret, _ = sqlite_query(cur, 'SELECT * FROM {} LIMIT 1'.format(table), True)
     if not ret or len(ret[0]) != len(rows[0]):
         e = '\nError: insertion not completed.'
         e += '\ndb {} cols vs input {} cols\n'.format(len(ret[0]), len(rows[0]))
+        logger.error('Insertion call error: {}',format(e))
         return Error(str(e))
 
     try:
@@ -162,7 +168,9 @@ def sqlite_insert(conn: Conn, cur: Cursor, table: str, rows: list) -> Status:
         cur.executemany('INSERT INTO {} VALUES {}'.format(table, cols), rows)
         conn.commit()
         status = OK()
+        logger.info('Insertion to {} executed'.format(table))
     except Exception as e:
+        logger.error('Insertion to {} exception: {}'.format(table, str(e)))
         status = Error(str(e))
 
     return status

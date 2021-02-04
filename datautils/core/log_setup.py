@@ -2,6 +2,7 @@
 """
 
 import logging # type: ignore
+from logging.handlers import RotatingFileHandler # type: ignore
 from os.path import expanduser # type: ignore
 from typing import Optional # type: ignore
 
@@ -18,12 +19,13 @@ def init_file_log(fname: str,
                   ) -> logging.Logger:
     """Initialize and return a file logger."""
     logger = logging.getLogger(fname)
+    logger.setLevel(level)
 
-    fh = logging.FileHandler(expanduser('{}{}.log'.format(fpath, fname)))
-    fh.setLevel(level)
+    f = expanduser('{}{}.log'.format(fpath, fname))
+    fh = RotatingFileHandler(f, maxBytes=10000000, backupCount=10)
     default_fmt = logging.Formatter(
         '%(asctime)s - %(levelname)s - %(message)s')
-    fh.setFormatter(fmt if fmt is not None else default_fmt)
+    fh.setFormatter(default_fmt if fmt is None else fmt)
     logger.addHandler(fh)
 
     return logger
