@@ -19,6 +19,7 @@ logger = log_setup.init_file_log(__name__, logging.WARNING)
 
 def main(args):
     """Process args from argparse."""
+    logger.debug('Running with args: {}'.format(str(args)))
     data = test_json(args.filename)
     if not data: return
 
