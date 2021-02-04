@@ -25,4 +25,4 @@ The script can be run conveniently with `redo all` on the command line if [redo]
 
 ### json
 
-- [jbro](https://github.com/tkuriyama/datautils/datautils/docs/jbro.md): command-line utility for browsing JSON files
+- [jbro](https://github.com/tkuriyama/datautils/tree/master/datautils/docs): command-line utility for browsing JSON files
