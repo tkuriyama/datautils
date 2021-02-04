@@ -21,14 +21,16 @@ if __name__ == '__main__':
     # optional args
     p.add_argument('-d', '--describe', action='store_true',
                    help='describe structure of file')
-    p.add_argument('-s', '--sample', type=int, 
+    p.add_argument('-s', '--sample', type=int,
                    help='sample n (key, value) pairs from file')
     p.add_argument('-c', '--chars', type=int,
                    help='sample n chars from file')
     p.add_argument('-f', '--find',
-                   help='find given key, nesting in form key1.key2')
+                   help='find given key, with nesting in form key1.key2 \
+                         and return its value')
     p.add_argument('-F', '--find_recursive',
-                   help='find given key recursively (i.e. all occurrences)')
+                   help='find given (unnested) key recursively \
+                         (i.e. all occurrences) and return their values')
     p.add_argument('-k', '--keys', action='store_true',
                    help='list all keys at top level')
     p.add_argument('-K', '--keys_recursive', action='store_true',
