@@ -79,7 +79,7 @@ def get_keys(data: dict, quiet: bool, truncate: bool) -> None:
 
     print_freq_keys(list(data), truncate)
 
-def get_all_keys(search_d: dict, quiet: bool, truncate: bool) -> None:
+def get_all_keys(search_d: dict, quiet: bool, truncate: bool) -> list:
     """Retrieve all keys in dict (BFS) in format key1.key2..."""
     print('\n> List all keys' if not quiet else '\n')
 
@@ -98,6 +98,7 @@ def get_all_keys(search_d: dict, quiet: bool, truncate: bool) -> None:
                              if isinstance(d_, dict))
 
     print_freq_keys(all_keys, truncate)
+    return all_keys
 
 ################################################################################
 # Search Functions
@@ -133,7 +134,8 @@ def _find_key(d: dict, keys: List[str]):
 
 def _find_key_list(lst: list, keys: List[str]) -> list:
     """Map _find_key over list elems that are dicts."""
-    return [_find_key(elem, keys) for elem in lst if isinstance(elem, dict)]
+    found = [_find_key(elem, keys) for elem in lst if isinstance(elem, dict)]
+    return [elem for elem in found if elem is not None]
 
 def find_rec(data: dict, key: str, quiet: bool, truncate: bool) -> None:
     """Find (unnested ) key recursively in data, return all occurences."""

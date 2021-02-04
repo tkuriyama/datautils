@@ -17,6 +17,11 @@ class TestSearch:
               'c': 'd',
               'e': {'f': 'g'}}
         d3 = {'a': {'b': {'c': 0}}}
+        d4 = {'a': [{'b': 'miss'},
+                    {'c': 'hit'}]}
+        d5 = {'a': [{'b': 'miss'},
+                    {'c': 'hit'},
+                    {'c': 'hit2'}]}
 
         assert f(d1, 'a') == 'b'
         assert f(d2, 'e') == {'f': 'g'}
@@ -24,6 +29,8 @@ class TestSearch:
         assert f(d3, ['a', 'b', 'c']) == 0
         assert f(d3, 'e') is None
         assert f(d3, ['a', 'd']) is None
+        assert f(d4, ['a', 'c']) == ['hit']
+        assert set(f(d5, ['a', 'c'])) == set(['hit', 'hit2'])
 
     def test_find_key_rec(self):
         """Find key recursively in dict."""
@@ -49,9 +56,12 @@ class TestSearch:
         d2 = {'a': 'b',
               'c': 'd',
               'e': {'a': 'f'}}
+        d3 = {'a': [{'b': ''},
+                    {'c': ''}]}
 
-        assert set(f(d1)) == set(['a', 'b', 'c'])
-        assert set(f(d2)) == set(['a', 'c', 'e', 'e.a'])
+        assert set(f(d1, 1, 0)) == set(['a', 'b', 'c'])
+        assert set(f(d2, 1, 0)) == set(['a', 'c', 'e', 'e.a'])
+        assert set(f(d3, 1, 0)) == set(['a', 'a.b', 'a.c'])
 
 ################################################################################
 
