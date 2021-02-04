@@ -1,5 +1,5 @@
 
-[![Build Status](https://travis-ci.org/tkuriyama/datautils.svg?branch=master)](https://travis-ci.org/tkuriyama/datautils)
+[![Build Status](https://travis-ci.com/tkuriyama/datautils.svg?branch=master)](https://travis-ci.com/tkuriyama/datautils)
 
 # datautils
 
