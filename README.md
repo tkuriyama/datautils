@@ -5,7 +5,7 @@
 
 A collection of lightweight utilities for working with data. Most things here are convenince functions that wrap lower-level libraries, intended to be used as components in a larger project, or as simple command-line utilities.
 
-The code uses type annotations and is type checked with `mypy` (see Build section below).
+The code uses type annotations and is type checked with [`mypy`](https://mypy.readthedocs.io/en/latest/index.html) (see Build section below).
 
 <hr>
 
