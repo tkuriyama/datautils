@@ -2,7 +2,7 @@
 """
 
 from collections import defaultdict # type: ignore
-from typing import Any, Dict, List, Tuple, TypeVar # type: ignore
+from typing import Dict, List, Tuple, TypeVar # type: ignore
 
 ################################################################################
 # Lists
