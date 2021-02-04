@@ -1,1 +1,1 @@
-__all__ = ['core', 'ingest']
+__all__ = ['core', 'ingest', 'json']

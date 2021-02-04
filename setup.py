@@ -1,9 +1,10 @@
 from setuptools import setup
 setup(
     name="datautils",
-    version="0.0.1",
-    packages=['datautils', 'datautils.core', 'datautils.ingest'],
-    scripts=[],
+    version="0.1.0",
+    packages=['datautils', 'datautils.core', 'datautils.ingest',
+              'datautils.json'],
+    scripts=['datautils/bin/jbro'],
 
     tests_require=['pytest'],
     install_requires=[],

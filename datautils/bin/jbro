@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+
+import argparse
+from jsonutils.jbro import jbro
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='JSON browsing utility')
+
+    # position args
+    parser.add_argument('filename', help='filename of JSON file')
+
+    # flags
+    flags = parser.add_argument_group('flags')
+    flags.add_argument('-q', '--quiet', action='store_true',
+                        help='suppress output description')
+    flags.add_argument('-t', '--truncate', action='store_true',
+                        help='truncate output to < 80 chars')
+
+    # optional args
+    parser.add_argument('-d', '--describe', action='store_true',
+                        help='describe structure of file')
+    parser.add_argument('-s', '--sample', type=int, 
+                        help='sample n (key, value) pairs from file')
+    parser.add_argument('-c', '--chars', type=int, 
+                        help='sample n chars from file')
+    parser.add_argument('-f', '--find',
+                        help='find given key, nesting in form key1.key2')
+    parser.add_argument('-F', '--find_recursive',
+                        help='find given key recursively (i.e. all occurrences)')
+    parser.add_argument('-k', '--keys', action='store_true',
+                        help='list all keys at top level')
+    parser.add_argument('-K', '--keys_recursive', action='store_true',
+                        help='list all keys recursively in form key1.key2')
+    parser.add_argument('-l', '--less', action='store_true',
+                        help='pipe pretty print of file to less')
+    
+    args = parser.parse_args()
+    jbro.main(args)
