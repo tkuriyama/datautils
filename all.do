@@ -7,3 +7,6 @@ pyflakes datautils/ >&2
 
 echo "\n> Running mypy" >&2
 mypy datautils >&2
+
+echo "\nPyTest coverage" >&2
+pytest --cov-config=.coveragerc --cov=datautils datautils/test/ >&2
