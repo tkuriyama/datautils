@@ -14,7 +14,7 @@ Install locally with pip from the project root directory: `
 
 ```shell
 pip install -r requirements.txt
-pip install .`
+pip install .
 ```
 
 Not tested with Python versions < 3.9.1
