@@ -11,7 +11,7 @@ from typing import (Tuple, Union) # type: ignore
 import sqlite3 # type: ignore
 
 from datautils.core import log_setup # type: ignore
-from datautils.code.utils import Error, OK, Status # type: ignore
+from datautils.core.utils import Error, OK, Status # type: ignore
 
 ################################################################################
 # Initialize Logging -- set logging level to > 50 to suppress all output
