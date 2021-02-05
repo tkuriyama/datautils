@@ -21,7 +21,7 @@ Not tested with Python versions < 3.9.1
 
 - [db_lib](https://github.com/tkuriyama/datautils/blob/master/datautils/docs/db_lib.md): perform common database operations
 - email_lib: send SMTP emails
-- [log_setup]: setup logging
+- [log_setup](https://github.com/tkuriyama/datautils/blob/master/datautils/docs/log_setup.md): setup logging
 - utils: small utility functions
 
 ### ingest
