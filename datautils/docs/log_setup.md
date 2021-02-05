@@ -9,7 +9,8 @@ The `core/log_setup.py` file contains a global `DEFAULTPATH`, which is set to `~
 
 To setup logging in any module, only the following imports and single function call is required.
 
-Note that diferent logging levels can be configured (per the [`logging docs`](https://docs.python.org/3/howto/logging.html)).
+- Ih the below example, the log filename will be the same as the module's name (`__name__`)
+- Diferent logging levels can be configured (per the [`logging docs`](https://docs.python.org/3/howto/logging.html)).
 
 ```python
 import logging
