@@ -21,7 +21,7 @@ Status = Union[OK, Error]
 # Lists
 
 T = TypeVar('T')
-Matrix = list[list[T]]
+Matrix = List[List[T]]
 
 def count_freq(lst: List[T]) -> Dict[T, int]:
     """Return frequency count of elements as dict."""

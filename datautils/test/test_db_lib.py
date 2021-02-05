@@ -16,14 +16,14 @@ class TestSqlite:
         q = 'SELECT * FROM SelectTest'
 
         ret = db_lib.query_once(path, q)
-        assert ret == [('HelloWorld', 7, 3.14)]
+        assert ret == [['HelloWorld', 7, 3.14]]
 
         ret = db_lib.query_once(path, q, True)
         assert ret == [['TextCol', 'IntCol', 'FloatCol'],
-                       ('HelloWorld', 7, 3.14)]
+                       ['HelloWorld', 7, 3.14]]
 
         ret = db_lib.query_once(path, q, True, True)
-        df = pd.DataFrame([('HelloWorld', 7, 3.14)],
+        df = pd.DataFrame([['HelloWorld', 7, 3.14]],
                           columns=['TextCol', 'IntCol', 'FloatCol'])
         assert ret.equals(df)
 
@@ -34,17 +34,17 @@ class TestSqlite:
         db = db_lib.DB(path)
 
         ret, status = db.query(q)
-        assert ret == [('HelloWorld', 7, 3.14)]
+        assert ret == [['HelloWorld', 7, 3.14]]
         assert status == db_lib.OK()
 
         ret, status = db.query(q, True)
         assert ret == [['TextCol', 'IntCol', 'FloatCol'],
-                       ('HelloWorld', 7, 3.14)]
+                       ['HelloWorld', 7, 3.14]]
         assert status == db_lib.OK()
 
         ret, status = db.query(q, True, True)
         ret = db_lib.query_once(path, q, True, True)
-        df = pd.DataFrame([('HelloWorld', 7, 3.14)],
+        df = pd.DataFrame([['HelloWorld', 7, 3.14]],
                           columns=['TextCol', 'IntCol', 'FloatCol'])
         assert ret.equals(df)
         assert status == db_lib.OK()
