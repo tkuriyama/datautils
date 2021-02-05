@@ -10,12 +10,17 @@ A collection of lightweight utilities for working with data. Most things here ar
 
 ## Install
 
-Install locally with pip from the project root directory: `pip install -e .`
+Install locally with pip from the project root directory: `
+
+```shell
+pip install -r requirements.txt
+pip install .`
+```
 
 Not tested with Python versions < 3.9.1
 
 
-## Components
+## Modules
 
 ### core
 
