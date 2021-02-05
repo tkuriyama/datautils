@@ -197,8 +197,8 @@ def sqlite_schema_cast(cur: Cursor, table: str, rows: Rows) -> RowsPair:
 # SQL String Helpers
 
 def valid_query(q: str) -> bool:
-    ql = q.lower()
-    return ('select' in ql and
-            'from' in ql and
-            'delete' not in ql and
-            'insert' not in ql)
+    ws = [w.strip().lower() for w in q.split(' ')]
+    return ('select' in ws and
+            'from' in ws and
+            'delete' not in ws and
+            'insert' not in ws)
