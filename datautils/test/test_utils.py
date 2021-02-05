@@ -27,3 +27,21 @@ class TestListUtils:
 
         t2 = ''
         assert f(t2, ',') == [['']]
+
+    def test_prepend_col(self):
+        """Test matrix column prepend."""
+        f = utils.prepend_col
+        m1 = [[]]
+        m2 = [[1], [2]]
+
+        assert f('a', m1) == [['a']]
+        assert f(0, m2) == [[0, 1], [0, 2]]
+
+    def test_append_col(self):
+        """Test matrix column append."""
+        f = utils.append_col
+        m1 = [[]]
+        m2 = [[1], [2]]
+
+        assert f('a', m1) == [['a']]
+        assert f(0, m2) == [[1, 0], [2, 0]]
