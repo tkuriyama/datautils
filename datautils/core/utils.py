@@ -2,7 +2,20 @@
 """
 
 from collections import defaultdict # type: ignore
-from typing import Dict, List, Tuple, TypeVar # type: ignore
+from dataclasses import dataclass # type: ignore
+from typing import Dict, List, Tuple, TypeVar, Union # type: ignore
+
+################################################################################
+
+@dataclass(frozen=True)
+class OK:
+    msg: str = 'OK'
+
+@dataclass(frozen=True)
+class Error:
+    msg: str
+
+Status = Union[OK, Error]
 
 ################################################################################
 # Lists

@@ -4,7 +4,6 @@ functions, though the common ones are also wrapped by the DB class.
 """
 
 
-from dataclasses import dataclass # type: ignore
 from enum import Enum # type: ignore
 import logging # type: ignore
 import pandas as pd # type: ignore
@@ -12,6 +11,7 @@ from typing import (Tuple, Union) # type: ignore
 import sqlite3 # type: ignore
 
 from datautils.core import log_setup # type: ignore
+from datautils.code.utils import Error, OK, Status # type: ignore
 
 ################################################################################
 # Initialize Logging -- set logging level to > 50 to suppress all output
@@ -23,16 +23,6 @@ logger = log_setup.init_file_log(__name__, logging.INFO)
 class DB_Type(Enum):
     SQLITE = 1
     POSTGRES = 2
-
-@dataclass(frozen=True)
-class OK:
-    msg: str = 'OK'
-
-@dataclass(frozen=True)
-class Error:
-    msg: str
-
-Status = Union[OK, Error]
 
 Conn = sqlite3.Connection
 Cursor = sqlite3.Cursor
