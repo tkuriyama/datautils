@@ -46,9 +46,13 @@ def get_save_text(url: str, fname: str, auth: MaybeAuth = None) -> Status:
                 f.write(r.text)
             status = OK()
         except Exception as e:
+            status = Error('Writing to file failed: {}'.format(str(e)))
             logger.error('Write to {} failed: {}'.format(fname, str(e)))
     else:
-        logger.info('No text data from {}; code {}'.format(url, r.status_code))
+        msg = 'No text data from {}; code {}'.format(url, r.status_code)
+        status = Error(msg)
+        logger.info(msg)
+
     return status
 
 def get_save_json(url: str, fname: str, auth: MaybeAuth = None) -> Status:
@@ -62,7 +66,11 @@ def get_save_json(url: str, fname: str, auth: MaybeAuth = None) -> Status:
                 f.write(json.dumps(r.json))
             status = OK()
         except Exception as e:
+            status = Error('Writing to file failed: {}'.format(str(e)))
             logger.error('Write to {} failed: {}'.format(fname, str(e)))
     else:
-        logger.info('No text data from {}; code {}'.format(url, r.status_code))
+        msg = 'No text data from {}; code {}'.format(url, r.status_code)
+        status = Error(msg)
+        logger.info(msg)
+
     return status
