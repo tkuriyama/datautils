@@ -26,7 +26,7 @@ class TestListUtils:
         assert f(t1, ',') == [['A', 'B', 'C'], ['1', '2', '3']]
 
         t2 = ''
-        assert f(t2, ',') == [['']]
+        assert f(t2, ',') == []
 
     def test_prepend_col(self):
         """Test matrix column prepend."""

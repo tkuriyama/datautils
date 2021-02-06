@@ -3,6 +3,7 @@
 
 from collections import defaultdict # type: ignore
 from dataclasses import dataclass # type: ignore
+import pandas as pd # type: ignore
 from typing import Dict, List, Tuple, TypeVar, Union # type: ignore
 
 ################################################################################
@@ -36,11 +37,16 @@ def count_freq_list(lst: List[T]) -> List[Tuple[T, int]]:
     d = count_freq(lst)
     return list(d.items())
 
-def text_to_matrix(text: str, delim: str) -> Matrix[str]:
+def text_to_matrix(text: str, delim: str = ',') -> Matrix[str]:
     """Split text by delim to list of lists."""
     lines = text.split('\n')
     return [[elem.strip() for elem in line.strip().split(delim)]
-            for line in lines]
+            for line in lines if line]
+
+def text_to_df(text: str, delim: str = ',') -> pd.DataFrame:
+    """Split text by delim to Pandas DF."""
+    rows = text_to_matrix(text, delim)
+    return pd.DataFrame(rows[1:], columns=rows[0])
 
 def prepend_col(val: T, m: Matrix[T]) -> Matrix[T]:
     """Prepend column to list of lists."""
