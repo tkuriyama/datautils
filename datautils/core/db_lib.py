@@ -3,11 +3,11 @@ For ease of testing and modularity, database operations are standalone
 functions, though the common ones are also wrapped by the DB class.
 """
 
-
 from enum import Enum # type: ignore
 import logging # type: ignore
 import pandas as pd # type: ignore
 from typing import List, Tuple, TypeVar # type: ignore
+import re # type: ignore
 import sqlite3 # type: ignore
 
 from datautils.core import log_setup # type: ignore
@@ -17,6 +17,7 @@ from datautils.core.utils import Error, OK, Status # type: ignore
 # Initialize Logging -- set logging level to > 50 to suppress all output
 
 logger = log_setup.init_file_log(__name__, logging.INFO)
+
 
 ################################################################################
 
@@ -29,6 +30,7 @@ Rows = List[List[T]]
 
 Conn = sqlite3.Connection
 Cursor = sqlite3.Cursor
+
 
 ################################################################################
 
@@ -74,7 +76,7 @@ class DB:
     def insert(self,
                table: str,
                rows: Rows,
-               schema_cast: bool = False
+               schema_cast: bool = True
                ) -> Status:
         """Run insert."""
         if self.db_type is DB_Type.SQLITE:
@@ -89,6 +91,7 @@ class DB:
         """Close DB connection."""
         status = close(self.conn)
         return status
+
 
 ################################################################################
 # DB_Type Agnostic Operations
@@ -117,10 +120,12 @@ def close(conn: Conn) -> Status:
         logger.error('Failed to close DB conn: {}'.format(str(e)))
     return status
 
+
 ################################################################################
 # DB_Type.SQLITE Operations
 
 RowsPair = Tuple[Rows, Status]
+SqliteSchema = List[Tuple[str, type]]
 
 def sqlite_query(cur: Cursor, q: str, hdr: bool = False) -> RowsPair:
     """Execute SQL query string."""
@@ -155,42 +160,88 @@ def sqlite_insert(conn: Conn,
                   cur: Cursor,
                   table: str,
                   rows: Rows,
-                  schema_cast: bool = False
+                  schema_cast: bool = True
                   ) -> Status:
     """Attempt to execute SQL insertion into specified table."""
     status: Status
-
-    f = sqlite_schema_cast if schema_cast else sqlite_validate_data
-    rows, valid_status = f(cur, table, rows)
-    if valid_status != OK(): return valid_status
+    schema, (rows_, v) = sqlite_validate_insert(cur, table, rows, schema_cast)
+    if v != OK(): return v
 
     try:
-        cols = '(' + ','.join(['?'] * len(rows[0])) + ')'
-        cur.executemany('INSERT INTO {} VALUES {}'.format(table, cols), rows)
+        cols = ','.join(name for name, _ in schema)
+        vals = ','.join('?' * len(schema))
+        i = 'INSERT INTO {}({}) VALUES ({})'.format(table, cols, vals)
+        cur.executemany(i, rows_)
         conn.commit()
         status = OK()
-        logger.info('Insertion to {} executed'.format(table))
+        logger.info('Insertion to {} executed: {}'.format(table, i))
     except Exception as e:
         status = Error(str(e))
-        logger.error('Insertion to {} exception: {}'.format(table, str(e)))
+        logger.error('Insertion exception for {}: {}'.format(i, str(e)))
 
     return status
 
-def sqlite_validate_data(cur: Cursor, table: str, rows: Rows) -> RowsPair:
-    """Validate insertion rows based on existing table data."""
-    ret, _ = sqlite_query(cur, 'SELECT * FROM {} LIMIT 1'.format(table), True)
-    if not ret or len(ret[0]) != len(rows[0]):
-        e = '\nError: insertion not completed.'
-        e += '\ndb {} cols vs input {} cols\n'.format(len(ret[0]), len(rows[0]))
-        logger.error('Insertion call error: {}',format(e))
-        return [], Error(str(e))
-    return rows, OK()
-
-def sqlite_schema_cast(cur: Cursor, table: str, rows: Rows) -> RowsPair:
-    """Attempt to cast insertion rows to correct types from table schema."""
+def sqlite_validate_insert(cur: Cursor,
+                           table: str,
+                           rows: Rows,
+                           schema_cast: bool
+                           ) -> Tuple[SqliteSchema, RowsPair]:
+    """Validate insertion cols and optionally try casting to schema dtypes."""
     q = 'SELECT sql FROM sqlite_master WHERE type="table" and name="{}"'
-    schema = sqlite_query(cur, q.format(table))
-    return [[]], OK()
+    ret, status = sqlite_query(cur, q.format(table))
+    if not ret or status != OK():
+        msg = 'Schema validation query {} failed'.format(q)
+        logging.error(msg)
+        return [], ([], Error(msg))
+
+    schema = sqlite_parse_schema(ret[0][0])
+
+    if len(schema) != len(rows[0]):
+        msg = 'Insertion validation error: {} has '.format(table)
+        msg += '{} cols vs input {} cols'.format(len(schema), len(rows[0]))
+        logger.error(msg)
+        return [], ([], Error(msg))
+
+    return (schema,
+            sqlite_apply_schema(schema, rows) if schema_cast else (rows, OK()))
+
+def sqlite_parse_schema(s: str) -> SqliteSchema:
+    """Extract (col, type) pairs from schema string."""
+    col_strs = re.findall(r'\((.*)\)', s)
+    if not col_strs:
+        logging.error('Schema parse failed, no cols between (): {}'.format(s))
+        return []
+
+    pairs = []
+    for col in col_strs[0].split(','):
+        if 'integer primary key' in col.lower(): continue
+        tokens = col.strip().split(' ')
+        name, dtypes = tokens[0], [t.lower() for t in tokens[1:]]
+        pairs.append((name, sqlite_map_dtype(dtypes)))
+    return pairs
+
+def sqlite_map_dtype(ts: List[str]) -> type:
+    """Map Sqlite data types to Python type (cast functions)."""
+    return (int if 'int' in ' '.join(ts) else
+            float if set(ts) & set(['real', 'float', 'double']) else
+            str)
+
+def sqlite_apply_schema(schema: SqliteSchema, rows: Rows) -> RowsPair:
+    """Attempt to cast rows to primitive types in schema."""
+    status : Status = OK()
+
+    try:
+        rows_ = []
+        for row in rows:
+            row_ = [cast(elem) for elem, (_, cast) in zip(row, schema)]
+            rows_.append(row_)
+    except Exception as e:
+        msg = 'Insertion validation error: '
+        msg += 'exception while casting {}: {}'.format(str(row), str(e))
+        status = Error(msg)
+        logger.error(msg)
+
+    return rows_, status
 
 
 ################################################################################
@@ -200,5 +251,6 @@ def valid_query(q: str) -> bool:
     ws = [w.strip().lower() for w in q.split(' ')]
     return ('select' in ws and
             'from' in ws and
+            'drop' not in ws and
             'delete' not in ws and
             'insert' not in ws)
