@@ -24,7 +24,7 @@ MaybeAuth = Optional[AuthDict]
 
 ################################################################################
 
-def get(url: str, auth: MaybeAuth) -> requests.Response:
+def get(url: str, auth: MaybeAuth = None) -> requests.Response:
     """Simple Get."""
     if auth:
         r = requests.get(url, auth=(auth['user'], auth['pwd']))
