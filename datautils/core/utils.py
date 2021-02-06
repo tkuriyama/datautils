@@ -36,7 +36,7 @@ def count_freq_list(lst: List[T]) -> List[Tuple[T, int]]:
     d = count_freq(lst)
     return list(d.items())
 
-def text_to_lists(text: str, delim: str) -> Matrix[str]:
+def text_to_matrix(text: str, delim: str) -> Matrix[str]:
     """Split text by delim to list of lists."""
     lines = text.split('\n')
     return [[elem.strip() for elem in line.strip().split(delim)]

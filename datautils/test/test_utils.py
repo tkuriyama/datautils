@@ -18,9 +18,9 @@ class TestListUtils:
         assert f(lst) == {1: 2, 2: 2, 3: 1}
         assert sorted(fl(lst), key=lambda x: x[0]) == [(1, 2), (2, 2), (3, 1)]
 
-    def test_text_to_lists(self):
+    def test_text_to_matrix(self):
         """Test text to list of lists transform."""
-        f = utils.text_to_lists
+        f = utils.text_to_matrix
 
         t1 = 'A,B,C \n1,2,3'
         assert f(t1, ',') == [['A', 'B', 'C'], ['1', '2', '3']]
