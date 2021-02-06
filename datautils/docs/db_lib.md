@@ -7,7 +7,7 @@ Currently supported databases:
 
 A `DB` object can be initialized to hold connection state and execute database operations. Alterantively, there are single-use functions like `query_once` for simpler use cases.
 
-## Eaxmple Usage
+## Example Usage
 
 ```python
 In [1]: from datautils.core import db_lib
@@ -49,3 +49,22 @@ Out[11]: OK(msg='OK')
 In [12]: db_lib.query_once('test.db', 'SELECT * FROM SelectTest')
 Out[12]: [('HelloWorld', 7, 3.14)]
 ```
+
+## Sqlite
+
+Since Sqlite features a dynamic typing model, `db_lib` by default attempts to validate  insertions by type casting using information from table schema.
+
+```python
+>>> from datautils.core import db_lib
+>>> db = db_lib.DB('test.db')
+
+>>> db.insert('SelectTest2', [['Test', '1.0', 'a']])
+Error(msg="Insertion validation error: exception while casting ['Test', '1.0', 'a']: invalid literal for int() with base 10: '1.0'")
+
+>>> db.insert('SelectTest2', [['Test', 1, 2.0]])
+OK(msg='OK')
+
+>>> db.close()
+```
+
+To disable type casting, set the `schema_cast` argument to `False` (it is `True` by default).
