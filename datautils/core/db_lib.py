@@ -207,14 +207,14 @@ def sqlite_validate_insert(cur: Cursor,
 
 def sqlite_parse_schema(s: str) -> SqliteSchema:
     """Extract (col, type) pairs from schema string."""
-    col_strs = re.findall(r'\((.*)\)', s)
+    col_strs = re.findall(r'CREATE TABLE [A-Za-z]+\((.*)\);?$', s, re.IGNORECASE)
     if not col_strs:
         logging.error('Schema parse failed, no cols between (): {}'.format(s))
         return []
 
     pairs = []
     for col in col_strs[0].split(','):
-        if 'integer primary key' in col.lower(): continue
+        if sqlite_ignore_column(col.lower()): continue
         tokens = col.strip().split(' ')
         name, dtypes = tokens[0], [t.lower() for t in tokens[1:]]
         pairs.append((name, sqlite_map_dtype(dtypes)))
@@ -243,6 +243,11 @@ def sqlite_apply_schema(schema: SqliteSchema, rows: Rows) -> RowsPair:
 
     return rows_, status
 
+def sqlite_ignore_column(col: str) -> bool:
+    """Ignore columns that do not describe data types."""
+    return ('integer primary key' in col.lower() or
+            'foreign key' in col.lower() or
+            'unique(' in col.lower())
 
 ################################################################################
 # SQL String Helpers
