@@ -252,6 +252,9 @@ def sqlite_ignore_column(col: str) -> bool:
 ################################################################################
 # SQL String Helpers
 
+V = TypeVar('V', str, int, float)
+CondTriple = Tuple[str, str, V]
+
 def valid_query(q: str) -> bool:
     ws = [w.strip().lower() for w in q.split(' ')]
     return ('select' in ws and
@@ -259,3 +262,13 @@ def valid_query(q: str) -> bool:
             'drop' not in ws and
             'delete' not in ws and
             'insert' not in ws)
+
+def where(triples: List[CondTriple]) -> str:
+    """Return where clause string."""
+    clauses = []
+    for col, op, val in triples:
+        clause = col + op
+        clause += ('"{}"'.format(val) if isinstance(val, str) else
+                   '{}'.format(str(val)))
+        clauses.append(clause)
+    return 'WHERE {}'.format(' AND '.join(clauses))

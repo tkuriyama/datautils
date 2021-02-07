@@ -117,3 +117,11 @@ class TestsQLHelpers:
         assert f('INSERT INTO x WHERE select') is False
         assert f('insert INTO x WHERE select') is False
         assert f('drop table selecttable') is False
+
+    def test_where(self):
+        """Test where string generation,"""
+        f = db_lib.where
+        ts = [('col1', '>=', 1),
+              ('col2', '=', 'asd')]
+
+        assert f(ts) == 'WHERE col1>=1 AND col2="asd"'
