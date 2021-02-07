@@ -267,6 +267,7 @@ def where(triples: List[CondTriple]) -> str:
     """Return where clause string."""
     clauses = []
     for col, op, val in triples:
+        if not val: continue # ignore clauses if comparison value missing
         clause = col + op
         clause += ('"{}"'.format(val) if isinstance(val, str) else
                    '{}'.format(str(val)))
