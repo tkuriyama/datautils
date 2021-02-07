@@ -3,8 +3,10 @@
 
 from collections import defaultdict # type: ignore
 from dataclasses import dataclass # type: ignore
+from os import path # type: ignore
 import pandas as pd # type: ignore
 from typing import Dict, List, Tuple, TypeVar, Union # type: ignore
+
 
 ################################################################################
 
@@ -17,6 +19,16 @@ class Error:
     msg: str
 
 Status = Union[OK, Error]
+
+
+################################################################################
+# Strinsg
+
+def userpath(path_str: str, fname: str) -> str:
+    """Expand ~ in path if present, and join with filename."""
+    path_str_ = path.expanduser(path_str)
+    return path.join(path_str_, fname)
+
 
 ################################################################################
 # Lists

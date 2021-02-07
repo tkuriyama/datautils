@@ -50,7 +50,7 @@ redo  all
 > PyTest coverage
 ============================= test session starts ==============================
 platform darwin -- Python 3.9.1, pytest-6.2.2, py-1.10.0, pluggy-0.13.1
-rootdir: /Users/tarokuriyama/Dropbox/CS/Repos/datautils
+rootdir: /.../datautils
 plugins: cov-2.11.1
 collected 11 items
 
