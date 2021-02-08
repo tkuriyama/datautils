@@ -75,8 +75,9 @@ def load_module(path: str, name: str):
 ################################################################################
 # Strings
 
-def userpath(path_str: str, fname: str) -> str:
-    """Expand ~ in path if present, and join with filename."""
+def userpath(path_str: str, fname: str = None) -> str:
+    """Expand ~ in path if present; optionallyjoin with filename."""
     path_str_ = path.expanduser(path_str)
-    return path.join(path_str_, fname)
+    return (path.join(path_str_, fname) if fname else
+            path_str_)
 
