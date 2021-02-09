@@ -190,8 +190,8 @@ def sqlite_validate_insert(cur: Cursor,
     q = 'SELECT sql FROM sqlite_master WHERE type="table" and name="{}"'
     ret, status = sqlite_query(cur, q.format(table))
     if not ret or status != OK():
-        msg = 'Schema validation query {} failed'.format(q)
-        logging.error(msg)
+        msg = 'Schema validation query {} failed'.format(q.format(table))
+        logger.error(msg)
         return [], ([], Error(msg))
 
     schema = sqlite_parse_schema(ret[0][0])
@@ -207,17 +207,18 @@ def sqlite_validate_insert(cur: Cursor,
 
 def sqlite_parse_schema(s: str) -> SqliteSchema:
     """Extract (col, type) pairs from schema string."""
-    col_strs = re.findall(r'CREATE TABLE [A-Za-z]+\((.*)\);?$', s, re.IGNORECASE)
+    col_strs = re.findall(r'CREATE TABLE [A-Z]+\((.*)\);?$', s, re.IGNORECASE)
     if not col_strs:
-        logging.error('Schema parse failed, no cols between (): {}'.format(s))
+        logger.error('Schema parse failed, no cols between (): {}'.format(s))
         return []
 
     pairs = []
     for col in col_strs[0].split(','):
         if sqlite_ignore_column(col.lower()): continue
         tokens = col.strip().split(' ')
-        name, dtypes = tokens[0], [t.lower() for t in tokens[1:]]
-        pairs.append((name, sqlite_map_dtype(dtypes)))
+        if len(tokens) >= 2:
+            name, dtypes = tokens[0], [t.lower() for t in tokens[1:]]
+            pairs.append((name, sqlite_map_dtype(dtypes)))
     return pairs
 
 def sqlite_map_dtype(ts: List[str]) -> type:
