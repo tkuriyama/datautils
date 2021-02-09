@@ -7,7 +7,7 @@ from dataclasses import dataclass # type: ignore
 import importlib.util # type: ignore
 from os import path # type: ignore
 import pandas as pd # type: ignore
-from typing import Dict, List, Tuple, TypeVar, Union # type: ignore
+from typing import Callable, Dict, List, Tuple, TypeVar, Union # type: ignore
 
 
 ################################################################################
@@ -73,6 +73,13 @@ def prepend_col(val: T, m: Matrix[T]) -> Matrix[T]:
 def append_col(val: T, m: Matrix[T]) -> Matrix[T]:
     """Append column to list of lists."""
     return [row + [val] for row in m]
+
+def replace_with(m: Matrix[T], i: int, f: Callable[[T], T]) -> Matrix[T]:
+    """Replace ith column in matrix using given function.
+    Returns original matrix if i is out of bounds.
+    """
+    return (m if i > len(m[0]) else
+            [line[:i] + [f(line[i])] + line[i+1:] for line in m])
 
 
 ################################################################################
