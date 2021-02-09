@@ -2,6 +2,7 @@
 """
 
 from collections import defaultdict # type: ignore
+import csv # type: ignore
 from dataclasses import dataclass # type: ignore
 import importlib.util # type: ignore
 from os import path # type: ignore
@@ -51,6 +52,19 @@ def text_to_df(text: str, delim: str = ',') -> pd.DataFrame:
     """Split text by delim to Pandas DF."""
     rows = text_to_matrix(text, delim)
     return pd.DataFrame(rows[1:], columns=rows[0])
+
+def csv_to_matrix(lines: List[str],
+                  delim: str = ',',
+                  quoted: bool = False,
+                  quote: str = '"'
+                  ) -> Matrix[str]:
+    """Use the csv module reader to parse to list of lists."""
+    return [line for line in
+            csv.reader(lines,
+                       quotechar=quote,
+                       delimiter=delim,
+                       quoting=(csv.QUOTE_ALL if quoted else csv.QUOTE_NONE),
+                       skipinitialspace=True)]
 
 def prepend_col(val: T, m: Matrix[T]) -> Matrix[T]:
     """Prepend column to list of lists."""

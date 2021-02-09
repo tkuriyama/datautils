@@ -28,6 +28,21 @@ class TestListUtils:
         t2 = ''
         assert f(t2, ',') == []
 
+    def test_csv_to_matrix(self):
+        """Test csv to list of lists transform."""
+        f = utils.csv_to_matrix
+
+        t1 = ['A,B,C', '1,2,3']
+        assert f(t1, ',') == [['A', 'B', 'C'], ['1', '2', '3']]
+
+        t2 = ''
+        assert f(t2, ',') == []
+
+        t3 = ['A,B,C', '1,2,"3,4"']
+        quoted = [['A', 'B', 'C'], ['1', '2', '3,4']]
+        assert utils.csv_to_matrix(t3, ',', True) == quoted
+
+
     def test_prepend_col(self):
         """Test matrix column prepend."""
         f = utils.prepend_col
