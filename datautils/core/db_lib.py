@@ -207,7 +207,7 @@ def sqlite_validate_insert(cur: Cursor,
 
 def sqlite_parse_schema(s: str) -> SqliteSchema:
     """Extract (col, type) pairs from schema string."""
-    col_strs = re.findall(r'CREATE TABLE [A-Z]+\((.*)\);?$', s, re.IGNORECASE)
+    col_strs = re.findall(r'CREATE TABLE [A-Z_-]+\((.*)\);?$', s, re.IGNORECASE)
     if not col_strs:
         logger.error('Schema parse failed, no cols between (): {}'.format(s))
         return []
@@ -269,8 +269,6 @@ def where(triples: List[CondTriple]) -> str:
     clauses = []
     for col, op, val in triples:
         if not val: continue # ignore clauses if comparison value missing
-        clause = col + op
-        clause += ('"{}"'.format(val) if isinstance(val, str) else
-                   '{}'.format(str(val)))
+        clause = '{} {} {}'.format(col, op, val)
         clauses.append(clause)
     return 'WHERE {}'.format(' AND '.join(clauses))

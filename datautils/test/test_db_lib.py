@@ -122,10 +122,10 @@ class TestsQLHelpers:
         """Test where string generation,"""
         f = db_lib.where
 
-        ts = [('col1', '>=', 1),
-              ('col2', '=', 'asd')]
-        assert f(ts) == 'WHERE col1>=1 AND col2="asd"'
+        ts = [('col1', '>=', '1'),
+              ('col2', '=', '"asd"')]
+        assert f(ts) == 'WHERE col1 >= 1 AND col2 = "asd"'
 
-        ts2 = [('col1', '>=', 1),
+        ts2 = [('col1', '>=', '1'),
                ('col2', '=', '')]
-        assert f(ts2) == 'WHERE col1>=1'
+        assert f(ts2) == 'WHERE col1 >= 1'
