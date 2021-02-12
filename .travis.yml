@@ -5,7 +5,7 @@ python:
 
 # command to install dependencies
 before_install:
-  - mkdir logs
+  - mkdir -p /home/travis/logs/
   - pip install -U pip
 
 install:
@@ -13,4 +13,4 @@ install:
   - python setup.py install
 
 # command to run tests
-script: py.test
+script: python -m pytest
