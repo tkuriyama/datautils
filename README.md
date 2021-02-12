@@ -1,4 +1,6 @@
 
+[![Build Status](https://travis-ci.com/tkuriyama/datautils.svg?branch=master)](https://travis-ci.com/tkuriyama/datautils)
+
 # datautils
 
 A collection of lightweight utilities for working with data. Most things here are convenince functions that wrap lower-level libraries, intended to be used as components in a larger project, or as simple command-line utilities.
