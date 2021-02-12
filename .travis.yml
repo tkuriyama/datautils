@@ -7,11 +7,10 @@ python:
 before_install:
   - mkdir logs
   - pip install -U pip
-  - python setup.py install
 
 install:
   - pip install -r requirements.txt
-  - pip install .
+  - python setup.py install
 
 # command to run tests
 script: py.test
