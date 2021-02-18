@@ -44,6 +44,27 @@ class TestDate:
                                         dt.date(2021, 2, 2),
                                         dt.date(2021, 2, 4)]
 
+class TestParsers:
+    """Test parser functions."""
+
+    def test_parse_date_word(self):
+        """Test parse_date_word where month is word."""
+        f = dt_lib.parse_date_word
+        assert f('Feb 21, 2020') == dt.date(2020, 2, 21)
+        assert f('21 Feb, 2020') == dt.date(2020, 2, 21)
+        assert f('21/Feb/2020') == dt.date(2020, 2, 21)
+        assert f('2020/Feb/21') == dt.date(2020, 2, 21)
+        assert f('2020, Feb 21') == dt.date(2020, 2, 21)
+        assert f('Feb  21  2020') == dt.date(2020, 2, 21)
+
+    def test_maybe_date(self):
+        """"Test maybe_date."""
+        f = dt_lib.maybe_date
+        assert f(None, None, None) is None
+        assert f(2021, None, 1) is None
+        assert f(2021, 12, None) is None
+        assert f(2021, 12, 32) is None
+        assert f(2021, 12, 1) == dt.date(2021, 12, 1)
 
 class TestHelpers:
     """Test helper functions."""
@@ -60,3 +81,11 @@ class TestHelpers:
         assert f(friday) is True
         assert f(saturday) is False
         assert f(sunday) is False
+
+    def test_month_to_int(self):
+        """Test month_to_int."""
+        f = dt_lib.month_to_int
+        assert f('Jan') == 1
+        assert f('December') == 12
+        assert f('jibberish') == None
+        assert f('janu') == None
