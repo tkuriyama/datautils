@@ -2,4 +2,5 @@ mypy >= 0.800
 pandas
 pyflakes
 pytest
+pytest-cov
 requests
