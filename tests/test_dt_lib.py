@@ -47,9 +47,9 @@ class TestDate:
 class TestParsers:
     """Test parser functions."""
 
-    def test_parse_date_word(self):
-        """Test parse_date_word where month is word."""
-        f = dt_lib.parse_date_word
+    def test_parse_date_name(self):
+        """Test parse_date_name -- where month is name."""
+        f = dt_lib.parse_date_name
         assert f('Feb 21, 2020') == dt.date(2020, 2, 21)
         assert f('21 Feb, 2020') == dt.date(2020, 2, 21)
         assert f('21/Feb/2020') == dt.date(2020, 2, 21)

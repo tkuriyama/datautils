@@ -45,3 +45,20 @@ Out[13]:
  datetime.date(2021, 2, 10),
  datetime.date(2021, 2, 11)]
 ```
+
+Parse date strings where the month is a name, returning an `Optional[date]` (either a `datetime.date` or `None`):
+
+```
+In [3]: dt_lib.parse_date_name('21 Feb, 2021')
+Out[3]: datetime.date(2021, 2, 21)
+
+# invalid month name
+In [4]: dt_lib.parse_date_name('21 Fib, 2021')
+
+In [5]: dt_lib.parse_date_name('1/Mar/1999')
+Out[5]: datetime.date(1999, 3, 1)
+
+# invalid year
+In [6]: dt_lib.parse_date_name('1/Mar/0')
+
+```

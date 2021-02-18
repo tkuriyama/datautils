@@ -56,8 +56,8 @@ def get_dates(date: dt.date,
 ################################################################################
 # Date Parsing
 
-def parse_date_word(date: str) -> Optional[dt.date]:
-    """Parse date with month as word."""
+def parse_date_name(date: str) -> Optional[dt.date]:
+    """Parse date where month is a name."""
     p1 = r'([0-9]{1,2})[\s,/]+([a-z]+)[\s,/]+([0-9]{4})'
     p2 = r'([a-z]+)[\s,/]+([0-9]+)[\s,/]+([0-9]+)'
     p3 = r'([0-9]{4})[\s,/]+([a-z]+)[\s,/]+([0-9]{1,2})'
@@ -75,7 +75,7 @@ def parse_date_word(date: str) -> Optional[dt.date]:
     else:
         y, m, d = 0, None, 0
 
-    return maybe_date(int(y), month_to_int(m), int(d))
+    return maybe_date(int(y), month_to_int(m) if m else None, int(d))
 
 def maybe_date(my: Optional[int],
                mm: Optional[int],
