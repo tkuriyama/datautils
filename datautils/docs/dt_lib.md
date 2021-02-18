@@ -58,7 +58,7 @@ In [4]: dt_lib.parse_date_name('21 Fib, 2021')
 In [5]: dt_lib.parse_date_name('1/Mar/1999')
 Out[5]: datetime.date(1999, 3, 1)
 
-# invalid year
+# invalid year -- assumes year has four digits (i.e. >= 1000)
 In [6]: dt_lib.parse_date_name('1/Mar/0')
 
 ```
