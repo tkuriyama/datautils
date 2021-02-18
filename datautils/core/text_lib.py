@@ -3,9 +3,6 @@
 
 from enum import Enum # type: ignore
 import logging # type: ignore
-import datetime as dt # type: ignore
-from typing import Collection, List, Optional
-import re # type: ignore
 
 from datautils.core import log_setup # type: ignore
 
