@@ -30,6 +30,7 @@ Not tested with Python versions < 3.9.1
 - [dt_lib](https://github.com/tkuriyama/datautils/blob/master/datautils/docs/dt_lib.md): helper functions for datetime
 - email_lib: send SMTP emails
 - [log_setup](https://github.com/tkuriyama/datautils/blob/master/datautils/docs/log_setup.md): setup logging
+- num_lib: numerical functions
 - utils: small utility functions
 
 ### ingest
