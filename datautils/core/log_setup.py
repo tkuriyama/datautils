@@ -24,7 +24,7 @@ def init_file_log(fname: str,
     f = expanduser('{}{}.log'.format(fpath, fname))
     fh = RotatingFileHandler(f, maxBytes=10000000, backupCount=10)
     default_fmt = logging.Formatter(
-        '%(asctime)s - %(levelname)s - %(message)s')
+        '%(asctime)s - %(levelname)s - {} - %(message)s'.format(fname))
     fh.setFormatter(default_fmt if fmt is None else fmt)
     logger.addHandler(fh)
 
