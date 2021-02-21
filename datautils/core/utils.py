@@ -85,11 +85,12 @@ def valid_shape(m: Matrix[T]) -> bool:
     """Check if m has a valid shape."""
     return all(len(row) == len(m[0]) for row in m)
 
+
 ################################################################################
 # Modules
 
 def load_module(path: str, name: str):
-    """"""
+    """Dynamically load module at given path."""
     spec = importlib.util.spec_from_file_location(name, path)
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m) # type: ignore
