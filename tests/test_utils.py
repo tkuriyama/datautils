@@ -68,3 +68,13 @@ class TestListUtils:
         m = [[1,2,3], [4,5,6]]
         assert f(m, 1, g) == [[1,3,3], [4,6,6]]
         assert f(m, 4, g) == m
+
+    def test_valid_shape(self):
+        """Test valid shape function."""
+        f = utils.valid_shape
+
+        assert f([[0], [1]]) is True
+        assert f([]) is True
+        assert f([[1,2], [3,4], [5,6]]) is True
+        assert f([[0], [1,2]]) is False
+        assert f([[], [1]]) is False
