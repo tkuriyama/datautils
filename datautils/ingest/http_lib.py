@@ -4,7 +4,7 @@
 import json # type: ignore
 import logging # type: ignore
 import requests # type: ignore
-from typing import Optional, TypedDict # type: ignore
+from typing import Dict, List, Optional, TypedDict # type: ignore
 
 from datautils.core import log_setup # type: ignore
 from datautils.core.utils import Error, OK, Status # type: ignore
@@ -14,6 +14,7 @@ from datautils.core.utils import Error, OK, Status # type: ignore
 
 logger = log_setup.init_file_log(__name__, logging.INFO)
 
+
 ################################################################################
 
 class AuthDict(TypedDict):
@@ -22,7 +23,9 @@ class AuthDict(TypedDict):
 
 MaybeAuth = Optional[AuthDict]
 
+
 ################################################################################
+# Get
 
 def get(url: str, auth: MaybeAuth = None) -> requests.Response:
     """Simple Get."""
@@ -31,8 +34,8 @@ def get(url: str, auth: MaybeAuth = None) -> requests.Response:
     else:
         r = requests.get(url)
     if r.status_code != 200:
-        logger.info('Request to {} returned code {}'.format(url,
-                                                             r.status_code))
+        logger.warning('Request to {} returned code {}'.format(url,
+                                                               r.status_code))
     return r
 
 def get_save_text(url: str, fname: str, auth: MaybeAuth = None) -> Status:
@@ -74,3 +77,20 @@ def get_save_json(url: str, fname: str, auth: MaybeAuth = None) -> Status:
         logger.info(msg)
 
     return status
+
+
+################################################################################
+# Helpers
+
+def url_join(paths: List[str], params: Optional[Dict[str, str]] = None) -> str:
+    """Construct URL with standard REST syntax."""
+    url = ''
+
+    # ensure joins with '/' but ignore final '/'
+    for path in paths:
+        url += path if path[-1] == '/' else '{}/'.format(path)
+    url_ = url[:-1]
+
+    if params:
+        url_ += '?' + '&'.join('{}={}'.format(k, v) for k, v in params.items())
+    return url_
