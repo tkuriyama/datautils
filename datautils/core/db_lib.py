@@ -11,7 +11,7 @@ import re # type: ignore
 import sqlite3 # type: ignore
 
 from datautils.core import log_setup # type: ignore
-from datautils.core.utils import Error, OK, Status # type: ignore
+from datautils.core.utils import Error, OK, Matrix, Status # type: ignore
 
 ################################################################################
 # Initialize Logging -- set logging level to > 50 to suppress all output
@@ -101,12 +101,22 @@ def query_once(db_name: str,
                hdr: bool = False,
                df: bool = False,
                db_type: DB_Type = DB_Type.SQLITE
-               ) -> list:
+               ) -> Matrix:
     """Convenience function: run single query and close connection."""
     c = DB(db_name, db_type)
     ret, _ = c.query(q, hdr, df)
     c.close()
     return ret
+
+def query_cols(db_name: str,
+               table: str,
+               db_type: DB_Type = DB_Type.SQLITE
+               ) -> List[str]:
+    """Convenience function: get table column names."""
+    c = DB(db_name, db_type)
+    ret, _ = c.query('SELECT * FROM {} LIMIT 1'.format(table), True)
+    c.close()
+    return ret[0]
 
 def close(conn: Conn) -> Status:
     """Close DB connection object."""
