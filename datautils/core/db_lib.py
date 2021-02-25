@@ -114,10 +114,21 @@ def query_cols(db_name: str,
                db_type: DB_Type = DB_Type.SQLITE
                ) -> List[str]:
     """Convenience function: get table column names."""
-    c = DB(db_name, db_type)
-    ret, _ = c.query('SELECT * FROM {} LIMIT 1'.format(table), True)
-    c.close()
+    db = DB(db_name, db_type)
+    ret, _ = db.query('SELECT * FROM {} LIMIT 1'.format(table), True)
+    db.close()
     return ret[0]
+
+def insert_once(db_name: str,
+                table: str,
+                rows: Rows,
+                db_type: DB_Type = DB_Type.SQLITE
+                ) -> Status:
+    """Convenience function: insert and close connection."""
+    db = DB(db_name, db_type)
+    status = db.insert(table, rows)
+    db.close()
+    return status
 
 def close(conn: Conn) -> Status:
     """Close DB connection object."""
