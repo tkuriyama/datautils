@@ -64,7 +64,7 @@ class DB:
               q: str,
               hdr: bool = False,
               df: bool = False
-              ) -> Tuple[list, Status]:
+              ) -> Tuple[QueryResult, Status]:
         """Run query."""
         if self.db_type is DB_Type.SQLITE:
             ret, status = (sqlite_query(self.cur, q, hdr) if not df else
