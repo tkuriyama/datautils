@@ -6,12 +6,12 @@ functions, though the common ones are also wrapped by the DB class.
 from enum import Enum # type: ignore
 import logging # type: ignore
 import pandas as pd # type: ignore
-from typing import List, Tuple, TypeVar # type: ignore
+from typing import List, Tuple, TypeVar, Union # type: ignore
 import re # type: ignore
 import sqlite3 # type: ignore
 
 from datautils.core import log_setup # type: ignore
-from datautils.core.utils import Error, OK, Matrix, Status # type: ignore
+from datautils.core.utils import Error, OK, Status # type: ignore
 
 ################################################################################
 # Initialize Logging -- set logging level to > 50 to suppress all output
@@ -27,6 +27,7 @@ class DB_Type(Enum):
 
 T = TypeVar('T')
 Rows = List[List[T]]
+QueryResult = Union[Rows, pd.DataFrame]
 
 Conn = sqlite3.Connection
 Cursor = sqlite3.Cursor
@@ -101,7 +102,7 @@ def query_once(db_name: str,
                hdr: bool = False,
                df: bool = False,
                db_type: DB_Type = DB_Type.SQLITE
-               ) -> Matrix:
+               ) -> QueryResult:
     """Convenience function: run single query and close connection."""
     c = DB(db_name, db_type)
     ret, _ = c.query(q, hdr, df)
