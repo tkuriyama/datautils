@@ -81,6 +81,11 @@ def replace_with(m: Matrix[T], i: int, f: Callable[[T], T]) -> Matrix[T]:
     return (m if i > len(m[0]) else
             [line[:i] + [f(line[i])] + line[i+1:] for line in m])
 
+def drop_col(i: int, m: Matrix[T]) -> Matrix[T]:
+    """Drop ith column in matrix."""
+    if i < 0 or i >= len(m[0]): return m
+    return [row[:i] + row[i+1:] for row in m]
+
 def valid_shape(m: Matrix[T]) -> bool:
     """Check if m has a valid shape."""
     return all(len(row) == len(m[0]) for row in m)

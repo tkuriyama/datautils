@@ -61,6 +61,15 @@ class TestListUtils:
         assert f('a', m1) == [['a']]
         assert f(0, m2) == [[1, 0], [2, 0]]
 
+    def test_drop_col(self):
+        """Test drop_col"""
+        f = utils.drop_col
+        m = [[1,2,3], [4,5,6]]
+        assert f(3, m) == m
+        assert f(2, m) == [[1, 2], [4, 5]]
+        assert f(-1, m) == m
+        assert f(0, m) == [[2, 3], [5, 6]]
+
     def test_replace_with(self):
         """Test replace_with matrix function."""
         f = utils.replace_with
