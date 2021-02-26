@@ -3,7 +3,7 @@
 
 import logging # type: ignore
 import pandas as pd # type: ignore
-from typing import List, Tuple, TypedDict # type: ignore
+from typing import List, Tuple, TypedDict, TypeVar # type: ignore
 
 from datautils.core import log_setup # type: ignore
 from datautils.core.utils import Error, OK, Matrix, Status # type: ignore
@@ -39,8 +39,40 @@ def update(df1: pd.DataFrame,
     """Update df1 with df2, tracking diffs along the way."""
     dd : DiffDict = {'adds': [], 'mods': [], 'retires': []}
 
-    return (pd.empty, dd, OK())
+    dim_status = compare_dims(df1, df2, True, False)
+    if dim_status != OK():
+        return pd.DataFrame(), dd, dim_status
 
+    # keep_keys, drop_keys = compare_keys(df1, df2, key_cols)
+
+
+    return (pd.DataFrame(), dd, OK())
+
+################################################################################
+# Filtering
+
+T = TypeVar('T')
+ListPair = Tuple[T, List[T]]
+
+def filter(df, **kwargs):
+    """Filter DF with arbitrary kwargs.
+    Applies naive (==) comparison on keys an values.
+    """
+    query_list = []
+    for key in kwargs.keys():
+        val = kwargs[key]
+        val_str = f'"{val}"' if isinstance(val, str) else f'{str(val)}'
+        query_list.append(f'{key}=={val_str}')
+    query = ' & '.join(query_list)
+    return df.query(query)
+
+def filter_cols(df: pd.DataFrame, conds: List[ListPair]) -> pd.DataFrame:
+    """Filter DF based on one or more column value filters."""
+    query_list = []
+    for col, vals in conds:
+        query_list.append(f'{col}.isin({str(vals)})')
+    query = ' & '.join(query_list)
+    return df.query(query)
 
 
 ################################################################################
@@ -74,5 +106,13 @@ def compare_dims(df1: pd.DataFrame,
                   Error('Matrix mismatch: {} x {} vs {} x {}'.format(rows1,
                                                                      cols1,
                                                                      rows2,
-                                                                     cols)))
+                                                                     cols2)))
     return status
+
+def compare_keys(df1: pd.DataFrame,
+                 df2: pd.DataFrame,
+                 key_cols: List[str]
+                 ) -> Tuple[List[str], List[str]]:
+    """"""
+    return [], []
+

@@ -4,10 +4,42 @@
 import pandas as pd # type: ignore
 
 from datautils.core import df_lib # type: ignore
-from datautils.core.utils import OK, Error, Status # type: ignore
+from datautils.core.utils import OK # type: ignore
 
 
 ################################################################################
+
+class TestFilters:
+    """Test filter functions."""
+
+    def test_filter(self):
+        """Test filter."""
+        f = df_lib.filter
+        df = pd.DataFrame([[1, 2, 3], [4, 5, 6]],
+                          columns=['a', 'b', 'c'])
+        df2 = pd.DataFrame([[1, 2, 3]],
+                           columns=['a', 'b', 'c'])
+        assert f(df, **{'b': 2}).equals(df2) is True
+
+        df = pd.DataFrame([['1', '2', '3'], ['4', '5', '6']],
+                          columns=['a', 'b', 'c'])
+        df2 = pd.DataFrame([['1', '2', '3']],
+                           columns=['a', 'b', 'c'])
+        assert f(df, **{'b': '2'}).equals(df2) is True
+
+    def test_filter_cols(self):
+        """Test filter."""
+        f = df_lib.filter_cols
+        df = pd.DataFrame([[1, 2, 3], [4, 5, 6]],
+                          columns=['a', 'b', 'c'])
+        df2 = pd.DataFrame([[1, 2, 3]],
+                           columns=['a', 'b', 'c'])
+
+        assert f(df, [('a', [1, 4])]).equals(df) is True
+        assert f(df, [('a', [1, 4, 9])]).equals(df) is True
+        assert f(df, [('a', [1])]).equals(df2) is True
+        assert len(f(df, [('a', [])])) == 0
+
 
 class TestHelpers:
     """Test helper funcs."""
