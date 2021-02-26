@@ -3,7 +3,7 @@
 
 import logging # type: ignore
 import pandas as pd # type: ignore
-from typing import List, Tuple, TypedDict, TypeVar # type: ignore
+from typing import List, Set, Tuple, TypedDict, TypeVar # type: ignore
 
 from datautils.core import log_setup # type: ignore
 from datautils.core.utils import Error, OK, Matrix, Status # type: ignore
@@ -43,7 +43,7 @@ def update(df1: pd.DataFrame,
     if dim_status != OK():
         return pd.DataFrame(), dd, dim_status
 
-    # keep_keys, drop_keys = compare_keys(df1, df2, key_cols)
+    # same_keys, new_keys, drop_keys = compare_keys(df1, df2, key_cols)
 
 
     return (pd.DataFrame(), dd, OK())
@@ -78,6 +78,8 @@ def filter_cols(df: pd.DataFrame, conds: List[ListPair]) -> pd.DataFrame:
 ################################################################################
 # Helpers
 
+ColSet = Set[Tuple[str, ...]]
+
 def df_to_matrix(df: pd.DataFrame, hdr: bool = False) -> Matrix:
     """Convert DF to list of lists."""
     m = df.to_numpy().tolist()
@@ -97,22 +99,25 @@ def compare_dims(df1: pd.DataFrame,
         status = OK()
     elif cols and not rows:
         status = (OK() if cols1 == cols2 else
-                  Error('Cols mismatch: {} vs {}'.format(cols1, cols2)))
+                  Error(f'Cols mismatch: {cols1} vs {cols2}'))
     elif rows and not cols:
         status = (OK() if rows1 == rows2 else
-                  Error('Rows mismatch: {} vs {}'.format(rows1, rows2)))
+                  Error(f'Rows mismatch: {rows1} vs {rows2}'))
     else:
         status = (OK() if rows1 == rows2 and cols1 == cols2 else
-                  Error('Matrix mismatch: {} x {} vs {} x {}'.format(rows1,
-                                                                     cols1,
-                                                                     rows2,
-                                                                     cols2)))
+                  Error('Matrix mismatch: ' +
+                        f'{rows1} x {cols1} vs {rows2} x {cols2}'))
     return status
 
-def compare_keys(df1: pd.DataFrame,
-                 df2: pd.DataFrame,
-                 key_cols: List[str]
-                 ) -> Tuple[List[str], List[str]]:
-    """"""
-    return [], []
+def symm_diff_cols(df1: pd.DataFrame,
+                   df2: pd.DataFrame,
+                   cols: List[str]
+                   ) -> Tuple[ColSet, ColSet, ColSet]:
+    """Symmetric diff on given keys."""
+    k1 = cols_to_set(df1, cols)
+    k2 = cols_to_set(df2, cols)
+    return k1 & k2, k2 - k1, k1 - k2
 
+def cols_to_set(df: pd.DataFrame, cols: List[str]) -> ColSet:
+    """Return given cols from DF as a set."""
+    return set(tuple(ks) for ks in df_to_matrix(df[cols]))

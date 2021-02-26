@@ -69,3 +69,28 @@ class TestHelpers:
         assert f(df1, df3, True, False) == OK()
         assert f(df1, df3, False, True) != OK()
         assert f(df1, df4, True, True) == OK()
+
+    def test_symm_diff_cols(self):
+        """Test symm_diff_cols."""
+
+        f = df_lib.symm_diff_cols
+        df = pd.DataFrame([[1, 2, 3],
+                           [4, 5, 6]],
+                          columns=['a', 'b', 'c'])
+        df2 = pd.DataFrame([[1, 2, 3],
+                            [7, 8, 9]],
+                           columns=['a', 'b', 'c'])
+
+        triple = set([(1, 2)]), set([(7, 8)]), set([(4, 5)])
+        assert f(df, df2, ['a', 'b']) == triple
+
+    def test_cols_to_set(self):
+        """Test cols_to_set."""
+        f = df_lib.cols_to_set
+        df = pd.DataFrame([[1, 2, 3],
+                           [4, 5, 6],
+                           [1, 5, 9]],
+                          columns=['a', 'b', 'c'])
+
+        assert f(df, ['a']) == set([(1, ), (4, )])
+        assert f(df, ['a', 'b']) == set([(1, 2), (4, 5), (1, 5)])
