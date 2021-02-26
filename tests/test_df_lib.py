@@ -9,6 +9,32 @@ from datautils.core.utils import OK # type: ignore
 
 ################################################################################
 
+class TestComparison:
+    """Test comparison functions."""
+
+    def test_symm_diff_df(self):
+        """Test symM_diff_df."""
+        f = df_lib.symm_diff_df
+        df = pd.DataFrame([[1, 2, 3],
+                           [4, 5, 6]],
+                          columns=['a', 'b', 'c'])
+        df2 = pd.DataFrame([[1, 2, 4],
+                            [7, 8, 9]],
+                           columns=['a', 'b', 'c'])
+
+        df_ = pd.DataFrame([[1, 2, 3]],
+                           columns=['a', 'b', 'c'])
+        df_only = pd.DataFrame([[4, 5, 6]],
+                               columns=['a', 'b', 'c'])
+        df2_ = pd.DataFrame([[1, 2, 4]],
+                            columns=['a', 'b', 'c'])
+        df2_only = pd.DataFrame([[7, 8, 9]],
+                                columns=['a', 'b', 'c'])
+
+        quad = (df_, df2_, df_only, df2_only)
+        assert all(a.reset_index(drop=True).equals(b) for (a, b) in
+                   zip(f(df, df2, ['a', 'b']), quad)) is True
+
 class TestFilters:
     """Test filter functions."""
 
@@ -81,7 +107,7 @@ class TestHelpers:
                             [7, 8, 9]],
                            columns=['a', 'b', 'c'])
 
-        triple = set([(1, 2)]), set([(7, 8)]), set([(4, 5)])
+        triple = set([(1, 2)]), set([(4, 5)]), set([(7, 8)])
         assert f(df, df2, ['a', 'b']) == triple
 
     def test_cols_to_set(self):

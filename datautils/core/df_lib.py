@@ -3,7 +3,8 @@
 
 import logging # type: ignore
 import pandas as pd # type: ignore
-from typing import List, Set, Tuple, TypedDict, TypeVar # type: ignore
+from typing import (Collection, List, Set, Sequence, Tuple,
+                    TypedDict, TypeVar) # type: ignore
 
 from datautils.core import log_setup # type: ignore
 from datautils.core.utils import Error, OK, Matrix, Status # type: ignore
@@ -46,13 +47,28 @@ def update(df1: pd.DataFrame,
     # same_keys, new_keys, drop_keys = compare_keys(df1, df2, key_cols)
 
 
-    return (pd.DataFrame(), dd, OK())
+    return pd.DataFrame(), dd, OK()
+
+def symm_diff_df(df1: pd.DataFrame,
+                 df2: pd.DataFrame,
+                 cols: List[str]
+                 ) -> Tuple[pd.DataFrame, pd.DataFrame,
+                            pd.DataFrame, pd.DataFrame,]:
+    """Symmetric diff on given keys.
+    Return tuple of DFs: (DF1 match, DF2 match, DF1 only, DF2 only).
+    """
+    both, df1_only, df2_only = symm_diff_cols(df1, df2, cols)
+    f = lambda xs: gen_list_pairs(cols, xs)
+    return (filter_cols(df1, f(both)),
+            filter_cols(df2, f(both)),
+            filter_cols(df1, f(df1_only)),
+            filter_cols(df2, f(df2_only)))
 
 ################################################################################
 # Filtering
 
 T = TypeVar('T')
-ListPair = Tuple[T, List[T]]
+ListPair = Tuple[T, Sequence[T]]
 
 def filter(df, **kwargs):
     """Filter DF with arbitrary kwargs.
@@ -74,11 +90,18 @@ def filter_cols(df: pd.DataFrame, conds: List[ListPair]) -> pd.DataFrame:
     query = ' & '.join(query_list)
     return df.query(query)
 
+def gen_list_pairs(cols: List[str],
+                   seqs: Collection[Sequence]
+                   ) -> List[ListPair]:
+    pairs: List[ListPair] = []
+    for i, col in enumerate(cols):
+        pairs.append((col, [seq[i] for seq in seqs]))
+    return pairs
 
 ################################################################################
 # Helpers
 
-ColSet = Set[Tuple[str, ...]]
+ColsSet = Set[Tuple[str, ...]]
 
 def df_to_matrix(df: pd.DataFrame, hdr: bool = False) -> Matrix:
     """Convert DF to list of lists."""
@@ -112,12 +135,12 @@ def compare_dims(df1: pd.DataFrame,
 def symm_diff_cols(df1: pd.DataFrame,
                    df2: pd.DataFrame,
                    cols: List[str]
-                   ) -> Tuple[ColSet, ColSet, ColSet]:
-    """Symmetric diff on given keys."""
+                   ) -> Tuple[ColsSet, ColsSet, ColsSet]:
+    """Symmetric diff on given keys: in both, in df1 only, in df2 only."""
     k1 = cols_to_set(df1, cols)
     k2 = cols_to_set(df2, cols)
-    return k1 & k2, k2 - k1, k1 - k2
+    return k1 & k2, k1 - k2, k2 - k1
 
-def cols_to_set(df: pd.DataFrame, cols: List[str]) -> ColSet:
+def cols_to_set(df: pd.DataFrame, cols: List[str]) -> ColsSet:
     """Return given cols from DF as a set."""
     return set(tuple(ks) for ks in df_to_matrix(df[cols]))
