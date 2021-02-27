@@ -121,8 +121,8 @@ class TestHelpers:
         assert f(df, ['a']) == set([(1, ), (4, )])
         assert f(df, ['a', 'b']) == set([(1, 2), (4, 5), (1, 5)])
 
-    def test_empty_diffs(self):
-        """Test empty_diffs."""
+    def test_empty_diff_dict(self):
+        """Test empty_diff_dict."""
         f = df_lib.empty_diffs
         dd : df_lib.DiffDict = {
             'adds': pd.DataFrame(),

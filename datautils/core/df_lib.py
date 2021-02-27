@@ -153,7 +153,7 @@ def cols_to_set(df: pd.DataFrame, cols: List[str]) -> ColsSet:
     """Return given cols from DF as a set."""
     return set(tuple(ks) for ks in df_to_matrix(df[cols]))
 
-def empty_diffs(dd: DiffDict) -> bool:
+def empty_diff_dict(dd: DiffDict) -> bool:
     """Return true if DiffDict is empty."""
     return (len(dd['adds']) == 0 and
             len(dd['mods']) == 0 and
