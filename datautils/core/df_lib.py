@@ -20,34 +20,40 @@ logger = log_setup.init_file_log(__name__, logging.INFO)
 # Comparisons
 
 Key = str
-Record = str
 Delta = str
-
-Addition = Tuple[Key, Record]
 Mod = Tuple[Key, Delta]
-Retire = Tuple[Key, Record]
 
 class DiffDict(TypedDict):
-    adds: List[Addition]
+    adds: pd.DataFrame
     mods: List[Mod]
-    retires: List[Retire]
+    retires: pd.DataFrame
 
-def update(df1: pd.DataFrame,
-           df2: pd.DataFrame,
-           key_cols: List[str],
-           ignore_cols: List[str]
-           ) -> Tuple[pd.DataFrame, DiffDict, Status]:
-    """Update df1 with df2, tracking diffs along the way."""
+def diff_df(df1: pd.DataFrame,
+            df2: pd.DataFrame,
+            key_cols: List[str],
+            ignore_cols: List[str]
+            ) -> Tuple[DiffDict, Status]:
+    """Find diffs as changes from df1 to df2."""
     dd : DiffDict = {'adds': [], 'mods': [], 'retires': []}
 
     dim_status = compare_dims(df1, df2, True, False)
     if dim_status != OK():
-        return pd.DataFrame(), dd, dim_status
+        return dd, dim_status
 
-    # same_keys, new_keys, drop_keys = compare_keys(df1, df2, key_cols)
+    df1_, df2_, retire_df, new_df = symm_diff_df(df1, df2, key_cols)
+    dd['adds'] = new_df
+    dd['mods'] = find_mods(df1_, df2_, ignore_cols)
+    dd['retires'] = retire_df
 
+    return dd, OK()
 
-    return pd.DataFrame(), dd, OK()
+def find_mods(df1: pd.DataFrame,
+              df2: pd.DataFrame,
+              ignore_cols: List[str]
+              ) -> List[Mod]:
+    """"""
+    return []
+
 
 def symm_diff_df(df1: pd.DataFrame,
                  df2: pd.DataFrame,
