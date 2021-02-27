@@ -229,7 +229,8 @@ def sqlite_validate_insert(cur: Cursor,
 
 def sqlite_parse_schema(s: str) -> SqliteSchema:
     """Extract (col, type) pairs from schema string."""
-    col_strs = re.findall(r'CREATE TABLE [A-Z_-]+\((.*)\);?$', s, re.IGNORECASE)
+    col_strs = re.findall(r'CREATE TABLE [A-Z0-9_-]+\((.*)\);?$', s,
+                          re.IGNORECASE)
     if not col_strs:
         logger.error('Schema parse failed, no cols between (): {}'.format(s))
         return []
