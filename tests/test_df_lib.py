@@ -123,7 +123,7 @@ class TestHelpers:
 
     def test_empty_diff_dict(self):
         """Test empty_diff_dict."""
-        f = df_lib.empty_diffs
+        f = df_lib.empty_diff_dict
         dd : df_lib.DiffDict = {
             'adds': pd.DataFrame(),
             'mods': [],
