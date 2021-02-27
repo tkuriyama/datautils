@@ -34,7 +34,9 @@ def diff_df(df1: pd.DataFrame,
             ignore_cols: List[str]
             ) -> Tuple[DiffDict, Status]:
     """Find diffs as changes from df1 to df2."""
-    dd : DiffDict = {'adds': [], 'mods': [], 'retires': []}
+    dd : DiffDict = {'adds': pd.DataFrame(),
+                     'mods': [],
+                     'retires': pd.DataFrame()}
 
     dim_status = compare_dims(df1, df2, True, False)
     if dim_status != OK():
@@ -150,3 +152,9 @@ def symm_diff_cols(df1: pd.DataFrame,
 def cols_to_set(df: pd.DataFrame, cols: List[str]) -> ColsSet:
     """Return given cols from DF as a set."""
     return set(tuple(ks) for ks in df_to_matrix(df[cols]))
+
+def empty_diffs(dd: DiffDict) -> bool:
+    """Return true if DiffDict is empty."""
+    return (len(dd['adds']) == 0 and
+            len(dd['mods']) == 0 and
+            len(dd['retires']) == 0)
