@@ -12,6 +12,63 @@ from datautils.core.utils import OK # type: ignore
 class TestComparison:
     """Test comparison functions."""
 
+    def test_diff_df(test):
+        """Test diff_df()."""
+        f = df_lib.diff_df
+        df1 = pd.DataFrame([[1,2,3],
+                            [4,5,6],
+                            [7,8,9],
+                            [12, 13, 14]],
+                           columns=['a', 'b', 'c'])
+        df2 = pd.DataFrame([[1,2,4],
+                            [4,5,6],
+                            [7,10,9],
+                            [15, 16, 17]],
+                           columns=['a', 'b', 'c'])
+
+        adds = df2[df2['a'] == 15]
+        mods = [(['7'], [('b', '8', '10')])]
+        retires = df1[df1['a'] == 12]
+
+        d, status = f(df1, df2, ['a'], ['c'])
+        assert d['adds'].equals(adds)
+        assert d['mods'] == mods
+        assert d['retires'].equals(retires)
+        assert status == OK()
+
+    def test_find_mods(self):
+        """Test find mod."""
+        f = df_lib.find_mods
+
+        df1 = pd.DataFrame([[1,2,3],
+                            [4,5,6],
+                            [7,8,9]],
+                           columns=['a', 'b', 'c'])
+        df2 = pd.DataFrame([[1,2,4],
+                            [4,5,6],
+                            [7,10,9]],
+                           columns=['a', 'b', 'c'])
+
+        assert f(df1, df2, ['a'], ['b', 'c']) == ([], OK())
+        assert (f(df1, df2, ['a'], ['c']) ==
+                ([(['7'], [('b', '8', '10')])], OK())
+                )
+        assert (f(df1, df2, ['a'], []) ==
+                ([(['1'], [('c', '3', '4')]),
+                  (['7'], [('b', '8', '10')])], OK())
+                )
+
+    def test_gen_mod(self):
+        """Test gen_mod"""
+        f = df_lib.gen_mod
+        d = {'key': 1,
+             'a_old': 2, 'a_new': 3,
+             'b_old': 'same', 'b_new': 'same',
+             'c_old': 'diff1', 'c_new': 'diff2'
+             }
+        assert f(d, ['key'], []) == (['1'], [])
+        assert f(d, ['key'], ['a']) == (['1'], [('a', '2', '3')])
+
     def test_symm_diff_df(self):
         """Test symM_diff_df."""
         f = df_lib.symm_diff_df

@@ -36,7 +36,7 @@ def diff_df(df1: pd.DataFrame,
             keys: List[Col],
             ignores: List[Col]
             ) -> Tuple[DiffDict, Status]:
-    """Find diffs as changes from df1 to df2."""
+    """Find diffs as a DiffDict of changes from df1 to df2."""
     dd : DiffDict = {'adds': None, 'mods': [], 'retires': None}
 
     dim_status = compare_dims(df1, df2, True, False)
@@ -55,7 +55,7 @@ def find_mods(df1: pd.DataFrame,
               keys: List[Col],
               ignores: List[Col] = []
               ) -> Tuple[List[Mod], Status]:
-    """"""
+    """Find all changes as Mods from df1 to df2."""
     diff_cols = [col for col in df1.columns
                  if col not in keys and col not in ignores]
     dim_status = compare_dims(df1, df2, True, True)
@@ -67,10 +67,11 @@ def find_mods(df1: pd.DataFrame,
     df = df1[mask].merge(df2[mask], on=keys, suffixes=['_old', '_new'])
     pairs =  [gen_mod(t._asdict(), keys, diff_cols)
               for t in df.itertuples(index=False)]
-    return pairs, OK()
+
+    return [pair for pair in pairs if pair[1]], OK()
 
 def gen_mod(d: OrderedDict, keys: List[Col], diff_cols: List[Col]) -> Mod:
-    """Generate Mod from tuple."""
+    """Generate Mod for a single row."""
     ks = [str(d[k]) for k in keys]
     vs = []
     for col in diff_cols:
