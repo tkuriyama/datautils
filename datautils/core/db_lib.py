@@ -172,8 +172,8 @@ def sqlite_query(cur: Cursor, q: str, hdr: bool = False) -> RowsPair:
 def sqlite_query_df(cur: Cursor, q: str) -> Tuple[pd.DataFrame, Status]:
     """Execute SQL query string and return result as DataFrame."""
     rows, status = sqlite_query(cur, q, True)
-    if status != OK() or len(rows) < 2:
-        logger.debug('Invalid status or not enough data, returning empty DF')
+    if status != OK() or not rows:
+        logger.error('Query {} returned nvalid status or no data'.format(q))
         return pd.DataFrame(), status
     df = pd.DataFrame(rows[1:], columns=rows[0])
     return df, status
