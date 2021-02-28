@@ -21,12 +21,15 @@ pip install .
 
 Not tested with Python versions < 3.9.1
 
+By default, logging assumes the existence of `~/logs/` as a global log output directory. Either create the directory, or specify a different directory in `datautils/core/log_setup.py`.
+
 
 ## Modules
 
 ### core
 
 - [db_lib](https://github.com/tkuriyama/datautils/blob/master/datautils/docs/db_lib.md): perform common database operations
+- df_lib: utlities for working with Pandas DataFrames
 - [dt_lib](https://github.com/tkuriyama/datautils/blob/master/datautils/docs/dt_lib.md): helper functions for datetime
 - email_lib: send SMTP emails
 - [log_setup](https://github.com/tkuriyama/datautils/blob/master/datautils/docs/log_setup.md): setup logging
