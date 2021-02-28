@@ -1,10 +1,17 @@
 """Pytest suite for db_lib.
 """
 
+import logging # type: ignore
 import pandas as pd # type: ignore
 
-from datautils.core import db_lib # type: ignore
+from datautils.core import db_lib, log_setup # type: ignore
 from datautils.core.utils import OK # type: ignore
+
+#########################################################g#######################
+# Supress Error logging during testing
+
+db_lib.logger = log_setup.init_file_log(__name__, logging.CRITICAL)
+
 
 ################################################################################
 
@@ -87,6 +94,7 @@ class TestSqlite:
 
     def test_bad_insert(self, datadir):
         """Test inserts with schema violations fail."""
+
         path = datadir.join('test.db')
         db = db_lib.DB(path)
 
