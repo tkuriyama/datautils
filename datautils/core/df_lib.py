@@ -1,6 +1,7 @@
 """Convenience functions for working with Pandas DataFrames.
 """
 
+from collections import OrderedDict # type: ignore
 import logging # type: ignore
 import pandas as pd # type: ignore
 from typing import (Collection, List, Set, Sequence, Tuple,
@@ -34,28 +35,47 @@ def diff_df(df1: pd.DataFrame,
             ignore_cols: List[str]
             ) -> Tuple[DiffDict, Status]:
     """Find diffs as changes from df1 to df2."""
-    dd : DiffDict = {'adds': pd.DataFrame(),
-                     'mods': [],
-                     'retires': pd.DataFrame()}
+    dd : DiffDict = {'adds': None, 'mods': [], 'retires': None}
 
     dim_status = compare_dims(df1, df2, True, False)
     if dim_status != OK():
         return dd, dim_status
 
     df1_, df2_, retire_df, new_df = symm_diff_df(df1, df2, key_cols)
-    dd['adds'] = new_df
-    dd['mods'] = find_mods(df1_, df2_, ignore_cols)
-    dd['retires'] = retire_df
+    mods, dim_status = find_mods(df1_, df2_, key_cols, ignore_cols)
+    if dim_status != OK():
+        return dd, dim_status
 
-    return dd, OK()
+    return {'adds': new_df, 'mods': mods, 'retires': retire_df}, OK()
 
 def find_mods(df1: pd.DataFrame,
               df2: pd.DataFrame,
-              ignore_cols: List[str]
-              ) -> List[Mod]:
+              key_cols: List[str],
+              ignore_cols: List[str] = []
+              ) -> Tuple[List[Mod], Status]:
     """"""
-    return []
+    diff_cols = [col for col in df1.columns
+                 if col not in key_cols and col not in ignore_cols]
+    dim_status = compare_dims(df1, df2, True, True)
+    if dim_status != OK():
+        return [], dim_status
 
+    diffs = df1[diff_cols] != df2[diff_cols]
+    mask = diffs.any(axis=1)
+    df = df1[mask].merge(df2[mask], on=key_cols, suffixes=['_old', '_new'])
+    pairs =  [gen_mod(t._asdict(), key_cols, diff_cols)
+              for t in df.itertuples(index=False)]
+    return pairs, OK()
+
+def gen_mod(d: OrderedDict, key_cols: List[str], diff_cols: List[str]) -> Mod:
+    """Generate Mod from tuple."""
+    ks = [str(d[k]) for k in key_cols]
+    vs = []
+    for col in diff_cols:
+        ks_old, ks_new = d[f'{col}_old'], d[f'{col}_new']
+        if ks_old != ks_new:
+            vs.append(f'{col}: {ks_old} vs {ks_new}')
+    return '.'.join(ks), '; '.join(vs)
 
 def symm_diff_df(df1: pd.DataFrame,
                  df2: pd.DataFrame,
@@ -71,6 +91,13 @@ def symm_diff_df(df1: pd.DataFrame,
             filter_cols(df2, f(both)),
             filter_cols(df1, f(df1_only)),
             filter_cols(df2, f(df2_only)))
+
+def empty_diff_dict(dd: DiffDict) -> bool:
+    """Return true if DiffDict is empty."""
+    return (len(dd['adds']) == 0 and
+            len(dd['mods']) == 0 and
+            len(dd['retires']) == 0)
+
 
 ################################################################################
 # Filtering
@@ -101,10 +128,12 @@ def filter_cols(df: pd.DataFrame, conds: List[ListPair]) -> pd.DataFrame:
 def gen_list_pairs(cols: List[str],
                    seqs: Collection[Sequence]
                    ) -> List[ListPair]:
+    """Construct ListPairs."""
     pairs: List[ListPair] = []
     for i, col in enumerate(cols):
         pairs.append((col, [seq[i] for seq in seqs]))
     return pairs
+
 
 ################################################################################
 # Helpers
@@ -153,8 +182,3 @@ def cols_to_set(df: pd.DataFrame, cols: List[str]) -> ColsSet:
     """Return given cols from DF as a set."""
     return set(tuple(ks) for ks in df_to_matrix(df[cols]))
 
-def empty_diff_dict(dd: DiffDict) -> bool:
-    """Return true if DiffDict is empty."""
-    return (len(dd['adds']) == 0 and
-            len(dd['mods']) == 0 and
-            len(dd['retires']) == 0)
