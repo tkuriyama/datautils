@@ -21,8 +21,10 @@ logger = log_setup.init_file_log(__name__, logging.INFO)
 # Comparisons
 
 Key = str
-Delta = str
-Mod = Tuple[Key, Delta]
+Col = str
+Val = str
+Delta = Tuple[Col, Val, Val] # (col, old new)
+Mod = Tuple[List[Key], List[Delta]]
 
 class DiffDict(TypedDict):
     adds: pd.DataFrame
@@ -31,8 +33,8 @@ class DiffDict(TypedDict):
 
 def diff_df(df1: pd.DataFrame,
             df2: pd.DataFrame,
-            key_cols: List[str],
-            ignore_cols: List[str]
+            keys: List[Col],
+            ignores: List[Col]
             ) -> Tuple[DiffDict, Status]:
     """Find diffs as changes from df1 to df2."""
     dd : DiffDict = {'adds': None, 'mods': [], 'retires': None}
@@ -41,8 +43,8 @@ def diff_df(df1: pd.DataFrame,
     if dim_status != OK():
         return dd, dim_status
 
-    df1_, df2_, retire_df, new_df = symm_diff_df(df1, df2, key_cols)
-    mods, dim_status = find_mods(df1_, df2_, key_cols, ignore_cols)
+    df1_, df2_, retire_df, new_df = symm_diff_df(df1, df2, keys)
+    mods, dim_status = find_mods(df1_, df2_, keys, ignores)
     if dim_status != OK():
         return dd, dim_status
 
@@ -50,36 +52,36 @@ def diff_df(df1: pd.DataFrame,
 
 def find_mods(df1: pd.DataFrame,
               df2: pd.DataFrame,
-              key_cols: List[str],
-              ignore_cols: List[str] = []
+              keys: List[Col],
+              ignores: List[Col] = []
               ) -> Tuple[List[Mod], Status]:
     """"""
     diff_cols = [col for col in df1.columns
-                 if col not in key_cols and col not in ignore_cols]
+                 if col not in keys and col not in ignores]
     dim_status = compare_dims(df1, df2, True, True)
     if dim_status != OK():
         return [], dim_status
 
     diffs = df1[diff_cols] != df2[diff_cols]
     mask = diffs.any(axis=1)
-    df = df1[mask].merge(df2[mask], on=key_cols, suffixes=['_old', '_new'])
-    pairs =  [gen_mod(t._asdict(), key_cols, diff_cols)
+    df = df1[mask].merge(df2[mask], on=keys, suffixes=['_old', '_new'])
+    pairs =  [gen_mod(t._asdict(), keys, diff_cols)
               for t in df.itertuples(index=False)]
     return pairs, OK()
 
-def gen_mod(d: OrderedDict, key_cols: List[str], diff_cols: List[str]) -> Mod:
+def gen_mod(d: OrderedDict, keys: List[Col], diff_cols: List[Col]) -> Mod:
     """Generate Mod from tuple."""
-    ks = [str(d[k]) for k in key_cols]
+    ks = [str(d[k]) for k in keys]
     vs = []
     for col in diff_cols:
-        ks_old, ks_new = d[f'{col}_old'], d[f'{col}_new']
-        if ks_old != ks_new:
-            vs.append(f'{col}: {ks_old} vs {ks_new}')
-    return '.'.join(ks), '; '.join(vs)
+        v_old, v_new = d[f'{col}_old'], d[f'{col}_new']
+        if v_old != v_new:
+            vs.append((col, str(v_old), str(v_new)))
+    return ks, vs
 
 def symm_diff_df(df1: pd.DataFrame,
                  df2: pd.DataFrame,
-                 cols: List[str]
+                 cols: List[Col]
                  ) -> Tuple[pd.DataFrame, pd.DataFrame,
                             pd.DataFrame, pd.DataFrame,]:
     """Symmetric diff on given keys.
@@ -103,7 +105,7 @@ def empty_diff_dict(dd: DiffDict) -> bool:
 # Filtering
 
 T = TypeVar('T')
-ListPair = Tuple[T, Sequence[T]]
+ListPair = Tuple[Col, Sequence[T]]
 
 def filter(df, **kwargs):
     """Filter DF with arbitrary kwargs.
@@ -125,7 +127,7 @@ def filter_cols(df: pd.DataFrame, conds: List[ListPair]) -> pd.DataFrame:
     query = ' & '.join(query_list)
     return df.query(query)
 
-def gen_list_pairs(cols: List[str],
+def gen_list_pairs(cols: List[Col],
                    seqs: Collection[Sequence]
                    ) -> List[ListPair]:
     """Construct ListPairs."""
@@ -138,7 +140,7 @@ def gen_list_pairs(cols: List[str],
 ################################################################################
 # Helpers
 
-ColsSet = Set[Tuple[str, ...]]
+ColsSet = Set[Tuple[Col, ...]]
 
 def df_to_matrix(df: pd.DataFrame, hdr: bool = False) -> Matrix:
     """Convert DF to list of lists."""
@@ -171,7 +173,7 @@ def compare_dims(df1: pd.DataFrame,
 
 def symm_diff_cols(df1: pd.DataFrame,
                    df2: pd.DataFrame,
-                   cols: List[str]
+                   cols: List[Col]
                    ) -> Tuple[ColsSet, ColsSet, ColsSet]:
     """Symmetric diff on given keys: in both, in df1 only, in df2 only."""
     k1 = cols_to_set(df1, cols)
