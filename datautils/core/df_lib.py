@@ -137,16 +137,24 @@ def gen_list_pairs(cols: List[Col],
         pairs.append((col, [seq[i] for seq in seqs]))
     return pairs
 
-
 ################################################################################
-# Helpers
-
-ColsSet = Set[Tuple[Col, ...]]
+# Converters
 
 def df_to_matrix(df: pd.DataFrame, hdr: bool = False) -> Matrix:
     """Convert DF to list of lists."""
     m = df.to_numpy().tolist()
     return m if not hdr else [list(df.columns)] + m
+
+def matrix_to_df(m: Matrix, hdr: bool = True) -> pd.DataFrame:
+    """Convert list of lists to DF."""
+    return (pd.DataFrame(m) if not hdr else
+            pd.DataFrame(m[1:], columns=m[0]))
+
+
+################################################################################
+# Helpers
+
+ColsSet = Set[Tuple[Col, ...]]
 
 def compare_dims(df1: pd.DataFrame,
                  df2: pd.DataFrame,
@@ -184,4 +192,3 @@ def symm_diff_cols(df1: pd.DataFrame,
 def cols_to_set(df: pd.DataFrame, cols: List[str]) -> ColsSet:
     """Return given cols from DF as a set."""
     return set(tuple(ks) for ks in df_to_matrix(df[cols]))
-
