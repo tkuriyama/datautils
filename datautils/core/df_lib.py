@@ -18,7 +18,7 @@ logger = log_setup.init_file_log(__name__, logging.INFO)
 
 
 ################################################################################
-# Comparisons
+# Logical Diff
 
 Key = str
 Col = str
@@ -62,9 +62,11 @@ def find_mods(df1: pd.DataFrame,
     if dim_status != OK():
         return [], dim_status
 
-    diffs = df1[diff_cols] != df2[diff_cols]
-    mask = diffs.any(axis=1)
-    df = df1[mask].merge(df2[mask], on=keys, suffixes=['_old', '_new'])
+    f = lambda x: x.sort_values(by=keys).reset_index(drop=True)
+    df1_, df2_ = f(df1), f(df2)
+
+    mask = (df1_ != df2_).any(axis=1)
+    df = df1_[mask].merge(df2_[mask], on=keys, suffixes=['_old', '_new'])
     pairs =  [gen_mod(t._asdict(), keys, diff_cols)
               for t in df.itertuples(index=False)]
 
