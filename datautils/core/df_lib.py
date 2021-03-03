@@ -28,7 +28,7 @@ Mod = Tuple[List[Key], List[Delta]]
 
 class DiffDict(TypedDict):
     adds: pd.DataFrame
-q    mods: List[Mod]
+    mods: List[Mod]
     retires: pd.DataFrame
 
 def diff_df(df1: pd.DataFrame,
