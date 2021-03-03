@@ -55,6 +55,7 @@ class DB:
             self.conn = sqlite3.connect(self.db_name)
             self.cur = self.conn.cursor()
             self.status = OK()
+            self.conn.execute('PRAGMA foreign_keys = 1')
             logger.info('Connected to Sqlite DB: {}'.format(self.db_name))
         else:
             self.status = self.INVALID_STATUS
