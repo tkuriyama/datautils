@@ -28,7 +28,7 @@ Mod = Tuple[List[Key], List[Delta]]
 
 class DiffDict(TypedDict):
     adds: pd.DataFrame
-    mods: List[Mod]
+q    mods: List[Mod]
     retires: pd.DataFrame
 
 def diff_df(df1: pd.DataFrame,
@@ -138,6 +138,7 @@ def gen_list_pairs(cols: List[Col],
     for i, col in enumerate(cols):
         pairs.append((col, [seq[i] for seq in seqs]))
     return pairs
+
 
 ################################################################################
 # Uniqueness
