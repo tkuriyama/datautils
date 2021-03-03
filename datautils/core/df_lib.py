@@ -140,6 +140,34 @@ def gen_list_pairs(cols: List[Col],
     return pairs
 
 ################################################################################
+# Uniqueness
+
+def split_unique(df: pd.DataFrame, keys: List[Col],) -> pd.DataFrame:
+    """Split DF based on unique key cols.
+    REturn (DF with duplicate key cols, DF with unique key cols).
+    """
+    dup_cols_set = [cols for cols, g in df.groupby(keys)
+                    if len(g) >= 2]
+    uniq_cols_set = [cols for cols, g in df.groupby(keys)
+                     if len(g) == 1]
+
+    dfs = []
+    for cols_set in (dup_cols_set, uniq_cols_set):
+        if not cols_set:
+            dfs.append(pd.DataFrame())
+            continue
+
+        # cols_set should be List[Sequence[str]]
+        if not isinstance(cols_set[0], tuple):
+            cols_set = [[cols] for cols in cols_set]
+        conds = gen_list_pairs(keys, cols_set)
+        dfs.append(filter_cols(df, conds))
+
+    dup_df, uniq_df = dfs[0], dfs[1]
+    return dup_df, uniq_df
+
+
+################################################################################
 # Converters
 
 def df_to_matrix(df: pd.DataFrame, hdr: bool = False) -> Matrix:

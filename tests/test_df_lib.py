@@ -123,6 +123,28 @@ class TestFilters:
         assert f(df, [('a', [1])]).equals(df2) is True
         assert len(f(df, [('a', [])])) == 0
 
+class TestUniques:
+    """Test uniqueness functions."""
+
+    def test_split_unique(self):
+        """Test split_unique."""
+        f = df_lib.split_unique
+
+        df = pd.DataFrame([[1, 2, 3], [1, 3, 4], [2, 5, 6]],
+                          columns=['TestKey', 'b', 'c'])
+
+        df2 = pd.DataFrame([[1, 2, 3], [1, 3, 4]],
+                           columns=['TestKey', 'b', 'c'])
+        df3 = pd.DataFrame([[2, 5, 6]],
+                           columns=['TestKey', 'b', 'c'])
+
+        dup_df, uniq_df = f(df, ['TestKey'])
+        assert dup_df.reset_index(drop=True).equals(df2)
+        assert uniq_df.reset_index(drop=True).equals(df3)
+
+        dup_df, uniq_df = f(df, ['TestKey', 'b'])
+        assert dup_df.equals(pd.DataFrame())
+        assert uniq_df.equals(df)
 
 class TestHelpers:
     """Test helper funcs."""
