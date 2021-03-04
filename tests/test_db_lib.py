@@ -60,38 +60,6 @@ class TestSqlite:
         status = db.close()
         assert status == db_lib.OK()
 
-    def test_parse_schema(self):
-        """Test sqlite_parse_schema."""
-        f = db_lib.sqlite_parse_schema
-        s = 'CREATE TABLE SelectTest(TextCol TEXT,'
-        s += 'IntCol INTEGER, FloatCol REAL);'
-
-        assert f(s) == [('TextCol', str), ('IntCol', int),
-                        ('FloatCol', float)]
-
-        s2 = 'CREATE TABLE SelectTest(id INTEGER PRIMARY KEY,'
-        s2 += 'TextCol TEXT, IntCol INTEGER, FloatCol DOUBLE);'
-
-        assert f(s2) == [('TextCol', str), ('IntCol', int),
-                         ('FloatCol', float)]
-
-    def test_sqlite_apply_schema(self):
-        """Test sqlite_apply_schema."""
-        f = db_lib.sqlite_apply_schema
-        schema = [('strcol', str), ('intcol', int), ('floatcol', float)]
-        rows = [['a', '1', '2.0']]
-        assert f(schema, rows) == ([['a', 1, 2.0]], OK())
-
-        # int(1.0) is ok but int('1.0') is not
-        rows2 = [['1', '1.0', '1']]
-        _, status = f(schema, rows2)
-        assert status != OK()
-
-        # float('a') is not ok
-        rows3 = [['1', '1', 'a']]
-        _, status = f(schema, rows3)
-        assert status != OK()
-
     def test_bad_insert(self, datadir):
         """Test inserts with schema violations fail."""
 
