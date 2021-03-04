@@ -64,3 +64,4 @@ class TestSqlite:
         rows3 = [['1', '1', 'a']]
         _, status = f(schema, rows3)
         assert status != OK()
+

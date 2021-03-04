@@ -58,6 +58,21 @@ class DB:
             self.status = self.INVALID_STATUS
             logger.error('DB conn failed: {}'.format(self.INVALID_STATUS.msg))
 
+    def create(self, stmt: str) -> Status:
+        """Create table."""
+        if not safe_statement(stmt):
+            msg = f'Safe statement check failed: {stmt}'
+            logger.error(msg)
+            return Error(msg)
+
+        if self.db_type is DB_Type.SQLITE:
+            status = db_sqlite.create(self.cur, stmt)
+        else:
+            status = self.INVALID_STATUS
+            logger.error(f'Create failed: {self.INVALID_STATUS.msg}')
+
+        return status
+
     def query(self,
               q: str,
               hdr: bool = False,
@@ -152,7 +167,15 @@ def close(conn) -> Status:
 V = TypeVar('V', str, int, float)
 CondTriple = Tuple[str, str, V]
 
+def safe_statement(stmt: str) -> bool:
+    """Validate if statement is safe."""
+    stmt_ = stmt.lower()
+    return ('drop table' not in stmt_ and 
+            'delete' not in stmt_ and
+            'update' not in stmt_)
+
 def valid_query(q: str) -> bool:
+    """Validate if query string is valid."""
     ws = [w.strip().lower() for w in q.split(' ')]
     return ('select' in ws and
             'from' in ws and

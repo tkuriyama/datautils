@@ -84,7 +84,16 @@ class TestSqlite:
 class TestsQLHelpers:
     """Test SQL string helper functions."""
 
+    def test_safe_statement(self):
+        """Test safe_statement"""
+        f = db_lib.safe_statement
+        assert f('DROP TABLE xys') is False
+        assert f(' DELETE FROM xys') is False
+        assert f(' UPDATE xys SET abc WHERE 123') is False
+        assert f('CREATE TABLE abc') is True
+
     def test_valid_query(self):
+        """Test valid_query"""
         f = db_lib.valid_query
         assert f('SELECT x FROM y') is True
         assert f('select * from x') is True

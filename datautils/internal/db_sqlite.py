@@ -33,7 +33,23 @@ Cursor = sqlite3.Cursor
 
 
 ################################################################################
-# QUery
+# Create
+
+def create(cur: Cursor, stmt: str) -> Status:
+    """Create table."""
+    status: Status
+    try:
+        cur.execute(stmt)
+        status = OK()
+        logger.info(f'Create statemetn executed: {stmt}')
+    except Exception as e:
+        logger.error(f'Create statement exception: {stmt}; {e}')
+        status = Error(str(e))
+    return status
+
+
+################################################################################
+# Query
 
 RowsPair = Tuple[Rows, Status]
 SqliteSchema = List[Tuple[str, type]]
@@ -117,13 +133,15 @@ def validate_insert(cur: Cursor,
     return (schema,
             apply_schema(schema, rows) if schema_cast else (rows, OK()))
 
+
 ################################################################################
 # Helpers
 
 def parse_schema(s: str) -> SqliteSchema:
     """Extract (col, type) pairs from schema string. TODO: REWRITE
     Assumes form:
-    CREATE TABLE(name dtype dargs... FOREIGN KEY and UNIQUE clauses);
+    CREATE TABLE (name dtype dargs... FOREIGN KEY and UNIQUE clauses);
+    CREATE TABLE IF NOT EXISTS is also valid
     """
     regex=  r'(?:CREATE TABLE|CREATE TABLE IF NOT EXISTS)\s+'
     regex += r'[A-Z0-9_-]+\s*\((.*)\);?'
