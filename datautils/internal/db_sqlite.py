@@ -121,7 +121,7 @@ def gen_fks(fks: List[SchemaForeignKey]) -> Tuple[str, Status]:
     for fk in fks:
         fk_cols, fk_ref_cols = fk['cols'], fk['ref_cols']
         if len(fk_cols) != len(fk_ref_cols):
-            s, status = '', Error('Length mismatch {fk_cols} vs {fk_ref_co;s}')
+            s, status = '', Error(f'Length mismatch {fk_cols} vs {fk_ref_cols}')
             break
 
         cols, ref_cols = ', '.join(fk_cols), ', '.join(fk_ref_cols)

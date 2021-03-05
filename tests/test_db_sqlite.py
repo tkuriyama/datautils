@@ -85,6 +85,32 @@ class TestCreate:
         assert 'name TEXT UNIQUE NOT NULL' in s
 
 
+        # bad foreign key spec
+        td5 = {'if_not_exists': True,
+               'name': 'Test',
+               'cols': [('id', DType.INTEGER, True, False, False),
+                        ('name', DType.TEXT, False, True, True),
+                        ('height', DType.REAL, False, False, False)],
+               'fks': [{'cols': ['name'],
+                        'ref_table': 'Other',
+                        'ref_cols': ['name', 'height']}],
+               'pk': ['name', 'height'],
+               'uniq': ['name', 'height']
+        }
+        s, status = f(td5)
+        assert status != OK()
+
+
+        # bad column spec, PK and Unique should not be used together
+        td6 = {'if_not_exists': True,
+               'name': 'Test',
+               'cols': [('id', DType.INTEGER, True, True, False)],
+               'fks': [],
+               'pk': [],
+               'uniq': []
+        }
+        assert f(td6) != OK()
+
 
 class TestSchema:
     """Test Sqlite operations."""
