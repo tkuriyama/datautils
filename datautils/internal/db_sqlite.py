@@ -116,16 +116,19 @@ def gen_cols(cols: List[SchemaCol]) -> Tuple[str, Status]:
 
 def gen_fks(fks: List[SchemaForeignKey]) -> Tuple[str, Status]:
     """Generate Foreign Keys substring."""
-    if not fks: return '', OK()
-
-    s = ''
+    status: Status
+    s, status = '', OK()
     for fk in fks:
-        cols_ = ', '.join(fk['cols'])
-        ref_cols_ = ', '.join(fk['ref_cols'])
-        ref_table_ = fk['ref_table']
-        s += f'FOREIGN KEY({cols_}) REFERENCES {ref_table_}({ref_cols_}),\n'
+        fk_cols, fk_ref_cols = fk['cols'], fk['ref_cols']
+        if len(fk_cols) != len(fk_ref_cols):
+            s, status = '', Error('Length mismatch {fk_cols} vs {fk_ref_co;s}')
+            break
 
-    return f'{s}', OK()
+        cols, ref_cols = ', '.join(fk_cols), ', '.join(fk_ref_cols)
+        ref_table = fk['ref_table']
+        s += f'FOREIGN KEY({cols}) REFERENCES {ref_table}({ref_cols}),\n'
+
+    return f'{s}', status
 
 def gen_pk_uniq(pk: List[Col], uniq: List[Col]) -> Tuple[str, Status]:
     """Generate Primary Key or Unique substring."""

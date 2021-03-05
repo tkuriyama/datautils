@@ -6,7 +6,7 @@ import logging # type: ignore
 from datautils.core import log_setup # type: ignore
 from datautils.core.utils import OK # type: ignore
 from datautils.internal import db_sqlite # type: ignore
-
+from datautils.internal.db_sqlite import DType # type: ignore
 #########################################################g#######################
 # Supress Error logging during testing
 
@@ -15,7 +15,78 @@ db_sqlite.logger = log_setup.init_file_log(__name__, logging.CRITICAL)
 
 ################################################################################
 
-class TestSqlite:
+class TestCreate:
+    """Test create table strings."""
+
+    def test_gen_create_stmt(self):
+        """Test gen_create_stmt."""
+        f = db_sqlite.gen_create_stmt
+
+        # create statements
+        td = {'if_not_exists': True,
+              'name': 'Table',
+              'cols': [],
+              'fks': [],
+              'pk': [],
+              'uniq': []
+        }
+        assert 'CREATE TABLE IF NOT EXISTS' in f(td)[0]
+        td['if_not_exists'] = False
+        assert ('CREATE TABLE IF NOT EXISTS' in f(td)[0]) is False
+        assert 'CREATE TABLE' in f(td)[0]
+
+        # create table with some cols
+        td2 = {'if_not_exists': True,
+               'name': 'Test',
+               'cols': [('id', DType.INTEGER, True, False, False)],
+               'fks': [],
+               'pk': [],
+               'uniq': []
+        }
+        s, status = f(td2)
+        assert status == OK()
+        s_ = 'CREATE TABLE IF NOT EXISTS Test(id INTEGER PRIMARY KEY\n);'
+        assert s == s_
+
+        td3 = {'if_not_exists': True,
+               'name': 'Test',
+               'cols': [('id', DType.INTEGER, True, False, False),
+                        ('name', DType.TEXT, False, True, True),
+                        ('height', DType.REAL, False, False, False)],
+               'fks': [],
+               'pk': [],
+               'uniq': []
+        }
+        s, status = f(td3)
+        assert status == OK()
+        assert (db_sqlite.parse_schema(s) ==
+                [('name', str), ('height', float)])
+        assert 'name TEXT UNIQUE NOT NULL' in s
+
+        # all table options for syntax verification
+        td4 = {'if_not_exists': True,
+               'name': 'Test',
+               'cols': [('id', DType.INTEGER, True, False, False),
+                        ('name', DType.TEXT, False, True, True),
+                        ('height', DType.REAL, False, False, False)],
+               'fks': [{'cols': ['height'],
+                        'ref_table': 'Other',
+                        'ref_cols': ['height']},
+                       {'cols': ['name', 'height'],
+                        'ref_table': 'Other',
+                        'ref_cols': ['name', 'height']}],
+               'pk': ['name', 'height'],
+               'uniq': ['name', 'height']
+        }
+        s, status = f(td4)
+        assert status == OK()
+        assert (db_sqlite.parse_schema(s) ==
+                [('name', str), ('height', float)])
+        assert 'name TEXT UNIQUE NOT NULL' in s
+
+
+
+class TestSchema:
     """Test Sqlite operations."""
 
     def test_parse_schema(self):
