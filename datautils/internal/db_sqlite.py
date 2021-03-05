@@ -80,11 +80,7 @@ def gen_create_stmt(td: TableDef) -> Tuple[str, Status]:
     pk_uniq, s4 = gen_pk_uniq(td['pk'], td['uniq'])
 
     if all(s == OK() for s in (s1, s2, s3, s4)):
-        spec = f'{cols}{fks}{pk_uniq}'
-        if spec and spec[-1] == ',':
-            spec = spec[:-1]
-        elif spec and spec[-2:] == ',\n':
-            spec = spec[:-2] + '\n'
+        spec = strip_comma(f'{cols}{fks}{pk_uniq}')
         stmt = f'{create}({spec});'
         status = OK()
     else:
@@ -148,6 +144,13 @@ def dtype_to_str(dt: DType) -> str:
             'TEXT' if dt == DType.TEXT else
             'BOOLEAN' if dt == DType.BOOLEAN else
             'BLOB')
+
+def strip_comma(s: str) -> str:
+    """Strip trailing comma."""
+    return (s[:-1] if s and s[-1] == ',' else
+            s[:-2] + '\n' if s and s[-2:] == ',\n' else
+            s)
+
 
 ################################################################################
 # Query
