@@ -191,3 +191,12 @@ def where(triples: List[CondTriple]) -> str:
         clause = '{} {} {}'.format(col, op, val)
         clauses.append(clause)
     return 'WHERE {}'.format(' AND '.join(clauses))
+
+
+################################################################################
+# Exposing DB-Specific Operations
+
+def gen_sqlite_create(td: db_sqlite.TableDef) -> Tuple[str, Status]:
+    """Generate CREATE TABLE string from TableDef dict."""
+    return db_sqlite.gen_create_stmt(td)
+
