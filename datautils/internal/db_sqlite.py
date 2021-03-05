@@ -91,7 +91,7 @@ def gen_create_stmt(td: TableDef) -> Tuple[str, Status]:
     return stmt, status
 
 def gen_create(if_not_exists: bool, name: str) -> Tuple[str, Status]:
-    """Gen Create substring."""
+    """Generate Create substring."""
     s = (f'CREATE TABLE {name}' if if_not_exists is False else
          f'CREATE TABLE IF NOT EXISTS {name}')
     return s, OK()
@@ -133,7 +133,7 @@ def gen_fks(fks: List[SchemaForeignKey]) -> Tuple[str, Status]:
 def gen_pk_uniq(pk: List[Col], uniq: List[Col]) -> Tuple[str, Status]:
     """Generate Primary Key or Unique substring."""
     s_pk = '' if not pk else 'PRIMARY KEY({})'.format(', '.join(pk))
-    s_uniq = '' if not uniq else 'UNIQUE({})'.format(', '.join(pk))
+    s_uniq = '' if not uniq else 'UNIQUE({})'.format(', '.join(uniq))
     s = ('' if not s_pk and not s_uniq else
          f'{s_pk}\n' if s_pk and not s_uniq else
          f'{s_uniq}\n' if s_uniq and not s_pk else
@@ -172,9 +172,9 @@ def query(cur: Cursor, q: str, hdr: bool = False) -> RowsPair:
         else:
             rows = [list(row) for row in result.fetchall()]
         status = OK()
-        logger.info('Query executed: {}'.format(q))
+        logger.info(f'Query executed: {q}')
     except Exception as e:
-        logger.error('Query exception: {}; {}'.format(q, str(e)))
+        logger.error(f'Query exception: {q}; {e}')
         rows, status = [], Error(str(e))
     return rows, status
 
@@ -182,7 +182,7 @@ def query_df(cur: Cursor, q: str) -> Tuple[pd.DataFrame, Status]:
     """Execute SQL query string and return result as DataFrame."""
     rows, status = query(cur, q, True)
     if status != OK() or not rows:
-        logger.error('Query {} returned nvalid status or no data'.format(q))
+        logger.error(f'Query {q} returned nvalid status or no data')
         return pd.DataFrame(), status
     df = pd.DataFrame(rows[1:], columns=rows[0])
     return df, status
@@ -205,7 +205,7 @@ def insert(conn: Conn,
     try:
         cols = ','.join(name for name, _ in schema)
         vals = ','.join('?' * len(schema))
-        i = 'INSERT INTO {}({}) VALUES ({})'.format(table, cols, vals)
+        i = f'INSERT INTO {table}({cols}) VALUES ({vals})'
         cur.executemany(i, rows_)
         conn.commit()
         status = OK()
@@ -222,18 +222,18 @@ def validate_insert(cur: Cursor,
                     schema_cast: bool
                     ) -> Tuple[SqliteSchema, RowsPair]:
     """Validate insertion cols and optionally try casting to schema dtypes."""
-    q = 'SELECT sql FROM sqlite_master WHERE type="table" and name="{}"'
-    ret, status = query(cur, q.format(table))
+    q = f'SELECT sql FROM sqlite_master WHERE type="table" and name="{table}"'
+    ret, status = query(cur, q)
     if not ret or status != OK():
-        msg = 'Schema validation query {} failed'.format(q.format(table))
+        msg = f'Schema validation query {q} failed'
         logger.error(msg)
         return [], ([], Error(msg))
 
     schema = parse_schema(ret[0][0])
 
     if len(schema) != len(rows[0]):
-        msg = 'Insertion validation error: {} has '.format(table)
-        msg += '{} cols vs input {} cols'.format(len(schema), len(rows[0]))
+        msg = f'Insertion validation error: {table} has '
+        msg += f'{len(schema)} cols vs input {len(rows[0])} cols'
         logger.error(msg)
         return [], ([], Error(msg))
 
@@ -254,7 +254,7 @@ def parse_schema(s: str) -> SqliteSchema:
     regex += r'[A-Z0-9_.-]+\s*\((.*)\);?'
     spec = re.findall(regex, s.replace('\n', ' '), flags=re.IGNORECASE )
     if not spec:
-        logger.error('Schema parse failed, no cols between (): {}'.format(s))
+        logger.error(f'Schema parse failed, no cols between (): {s}')
         return []
 
     cols = spec[0].split('FOREIGN')[0]
@@ -283,8 +283,7 @@ def apply_schema(schema: SqliteSchema, rows: Rows) -> RowsPair:
             row_ = [cast(elem) for elem, (_, cast) in zip(row, schema)]
             rows_.append(row_)
     except Exception as e:
-        msg = 'Insertion validation error: '
-        msg += 'exception while casting {}: {}'.format(str(row), str(e))
+        msg = f'Insertion validation error: exception while casting {row}: {e}'
         status = Error(msg)
         logger.error(msg)
 
