@@ -1,16 +1,17 @@
-"""A lightweight database connection wrapper for common operations.
-This module wraps `sqlite3` operations.
+"""Internal module wrapping `sqlite3` operations for core/db_lib
+For simplicity, only a subset of the sqlite specification is implemented.
 """
 
 from enum import Enum # type: ignore
 import logging # type: ignore
 import pandas as pd # type: ignore
-from typing import List, Tuple, TypeVar, Union # type: ignore
+from typing import List, Tuple, TypedDict, TypeVar # type: ignore
 import re # type: ignore
 import sqlite3 # type: ignore
 
 from datautils.core import log_setup # type: ignore
 from datautils.core.utils import Error, OK, Status # type: ignore
+
 
 ################################################################################
 # Initialize Logging -- set logging level to > 50 to suppress all output
@@ -20,13 +21,8 @@ logger = log_setup.init_file_log(__name__, logging.INFO)
 
 ################################################################################
 
-class DB_Type(Enum):
-    SQLITE = 1
-    POSTGRES = 2
-
 T = TypeVar('T')
 Rows = List[List[T]]
-QueryResult = Union[Rows, pd.DataFrame]
 
 Conn = sqlite3.Connection
 Cursor = sqlite3.Cursor
@@ -34,6 +30,34 @@ Cursor = sqlite3.Cursor
 
 ################################################################################
 # Create
+
+Col = str
+Name = str
+Is_PK = bool
+Is_Uniq = bool
+Is_Not_Null = bool
+
+class DType(Enum):
+    INTEGER = 0
+    REAL = 1
+    TEXT = 2
+    BOOLEAN = 3
+    BLOB = 4
+
+SchemaCol = Tuple[Name, DType, Is_PK, Is_Uniq, Is_Not_Null]
+
+class SchemaForeignKey(TypedDict):
+    cols: List[Col]
+    ref_table: str
+    ref_cols: List[Col]
+
+class TableDef(TypedDict):
+    if_not_exists: bool
+    name: Name
+    cols: List[SchemaCol]
+    fks: List[SchemaForeignKey]
+    pk: List[Col]
+    uniq: List[Col]
 
 def create(cur: Cursor, stmt: str) -> Status:
     """Create table."""
@@ -47,6 +71,83 @@ def create(cur: Cursor, stmt: str) -> Status:
         status = Error(str(e))
     return status
 
+def gen_create_stmt(td: TableDef) -> Tuple[str, Status]:
+    """Translate TableDef into Create Table statement."""
+    status: Status
+    create, s1 = gen_create(td['if_not_exists'], td['name'])
+    cols, s2 = gen_cols(td['cols'])
+    fks, s3 = gen_fks(td['fks'])
+    pk_uniq, s4 = gen_pk_uniq(td['pk'], td['uniq'])
+
+    if all(s == OK() for s in (s1, s2, s3, s4)):
+        spec = f'{cols}{fks}{pk_uniq}'
+        if spec[-1] == ',':
+            spec = spec[:-1]
+        elif spec[-2:] == ',\n':
+            spec = spec[:-2] + '\n'
+        stmt = f'{create}({spec});'
+        status = OK()
+    else:
+        stmt = ''
+        msg = ' | '.join(s.msg for s in (s1, s2, s3, s4) if s != OK())
+        status = Error(msg)
+
+    return stmt, status
+
+def gen_create(if_not_exists: bool, name: str) -> Tuple[str, Status]:
+    """Gen Create substring."""
+    s = (f'CREATE TABLE {name}' if if_not_exists is False else
+         f'CREATE TABLE IF NOT EXISTS {name}')
+    return s, OK()
+
+def gen_cols(cols: List[SchemaCol]) -> Tuple[str, Status]:
+    """Generate columns substring."""
+    status: Status
+    if not cols: return '', OK()
+
+    s, status = '', OK()
+    for col in cols:
+        name, dtype, pk, uniq, not_null = col
+        if pk and uniq:
+            s, status = '', Error(f'Col {name} specified as both PK and Uniq')
+            break
+        dtype_ = dtype_to_str(dtype)
+        s += f'{name} {dtype_}'
+        s += ' PRIMARY KEY' if pk else ' UNIQUE' if uniq else ''
+        s += ' NOT NULL,\n' if not_null else ',\n'
+
+    return s, status
+
+def gen_fks(fks: List[SchemaForeignKey]) -> Tuple[str, Status]:
+    """Generate Foreign Keys substring."""
+    if not fks: return '', OK()
+
+    s = ''
+    for fk in fks:
+        cols_ = ', '.join(fk['cols'])
+        ref_cols_ = ', '.join(fk['ref_cols'])
+        ref_table_ = fk['ref_table']
+        s += f'FOREIGN KEY({cols_}) REFERENCES {ref_table_}({ref_cols_}),\n'
+
+    return f'{s}', OK()
+
+def gen_pk_uniq(pk: List[Col], uniq: List[Col]) -> Tuple[str, Status]:
+    """Generate Primary Key or Unique substring."""
+    s_pk = '' if not pk else 'PRIMARY KEY({})'.format(', '.join(pk))
+    s_uniq = '' if not uniq else 'UNIQUE({})'.format(', '.join(pk))
+    s = ('' if not s_pk and not s_uniq else
+         f'{s_pk}\n' if s_pk and not s_uniq else
+         f'{s_uniq}\n' if s_uniq and not s_pk else
+         f'{s_pk},\n{s_uniq}\n')
+    return s, OK()
+
+def dtype_to_str(dt: DType) -> str:
+    """Map DType to string."""
+    return ('INTEGER' if dt == DType.INTEGER else
+            'REAL' if dt == DType.REAL else
+            'TEXT' if dt == DType.TEXT else
+            'BOOLEAN' if dt == DType.BOOLEAN else
+            'BLOB')
 
 ################################################################################
 # Query
@@ -144,7 +245,7 @@ def parse_schema(s: str) -> SqliteSchema:
     CREATE TABLE IF NOT EXISTS is also valid
     """
     regex=  r'(?:CREATE TABLE|CREATE TABLE IF NOT EXISTS)\s+'
-    regex += r'[A-Z0-9_-]+\s*\((.*)\);?'
+    regex += r'[A-Z0-9_.-]+\s*\((.*)\);?'
     spec = re.findall(regex, s.replace('\n', ' '), flags=re.IGNORECASE )
     if not spec:
         logger.error('Schema parse failed, no cols between (): {}'.format(s))
