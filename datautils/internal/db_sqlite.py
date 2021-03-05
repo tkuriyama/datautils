@@ -65,7 +65,7 @@ def create(cur: Cursor, stmt: str) -> Status:
     try:
         cur.execute(stmt)
         status = OK()
-        logger.info(f'Create statemetn executed: {stmt}')
+        logger.info(f'Create statement executed: {stmt}')
     except Exception as e:
         logger.error(f'Create statement exception: {stmt}; {e}')
         status = Error(str(e))
