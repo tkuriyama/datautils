@@ -81,9 +81,9 @@ def gen_create_stmt(td: TableDef) -> Tuple[str, Status]:
 
     if all(s == OK() for s in (s1, s2, s3, s4)):
         spec = f'{cols}{fks}{pk_uniq}'
-        if spec[-1] == ',':
+        if spec and spec[-1] == ',':
             spec = spec[:-1]
-        elif spec[-2:] == ',\n':
+        elif spec and spec[-2:] == ',\n':
             spec = spec[:-2] + '\n'
         stmt = f'{create}({spec});'
         status = OK()
