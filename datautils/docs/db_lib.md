@@ -68,3 +68,11 @@ OK(msg='OK')
 ```
 
 To disable type casting, set the `schema_cast` argument to `False` (it is `True` by default).
+
+**Creating Tables**
+
+There is limited support for generating create table statements from a Python TypedDict object, with `db_lib.sqlite_create_table`.
+
+See [this post](https://tkuriyama.github.io/general/2021/03/05/generating-db-tables.html) for example usage.
+
+Data definition and implementation details in [`datautils/internal/db_sqlite`](https://github.com/tkuriyama/datautils/tree/master/datautils/internal)
