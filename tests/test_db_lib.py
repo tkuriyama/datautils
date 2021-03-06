@@ -6,6 +6,7 @@ import pandas as pd # type: ignore
 
 from datautils.core import db_lib, log_setup # type: ignore
 from datautils.core.utils import OK # type: ignore
+from datautils.internal import db_sqlite # type: ignore
 
 #########################################################g#######################
 # Supress Error logging during testing
@@ -17,6 +18,24 @@ db_lib.logger = log_setup.init_file_log(__name__, logging.CRITICAL)
 
 class TestSqlite:
     """Test Sqlite operations."""
+
+    def test_create(self, datadir):
+        """Test create."""
+        td = {'name': 'TestCreate',
+              'if_not_exists': True,
+              'cols': [('id', db_sqlite.DType.INTEGER, True, 0, 0),
+                       ('name', db_sqlite.DType.TEXT, 0, 0, 1),
+                       ('desc', db_sqlite.DType.TEXT, 0, 0, 1)],
+              'fks': [],
+              'pk': [],
+              'uniq': ['name', 'desc']
+              }
+
+        path = datadir.join('test.db')
+        db = db_lib.DB(path)
+        stmt, _ = db_lib.gen_sqlite_create(td)
+        status = db.create(stmt)
+        assert status == OK()
 
     def test_query_once(self, datadir):
         """Test simple query_once variants."""
