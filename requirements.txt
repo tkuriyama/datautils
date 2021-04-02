@@ -5,3 +5,4 @@ pyflakes
 pytest
 pytest-cov
 requests
+pysftp
