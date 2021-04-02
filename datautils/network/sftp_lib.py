@@ -18,7 +18,7 @@ logger = log_setup.init_file_log(__name__, logging.INFO)
 class SFTP:
     """SFTP Connection."""
 
-    def __init__(self, host: str, user: str, pw: str) -> None:
+    def __init__(self, host: str, user: str, pw: str):
         self.host = host
         self.conn = pysftp.Connection(host,
                                       username = user,
@@ -29,7 +29,15 @@ class SFTP:
         """Provde Connection object for `with` context."""
         return self.conn
 
-    def __exit__(self):
+    def __exit__(self, exc_type, exc_value, tb):
         """Close Connection for `with` context."""
+        self.conn.close()
+        logger.info(f'Closed connection to {self.host}')
+
+        if exc_type is not None:
+            logger.error(f'{exc_type} {exc_value}: {tb}')
+
+    def close(self):
+        """Close connection."""
         self.conn.close()
         logger.info(f'Closed connection to {self.host}')
