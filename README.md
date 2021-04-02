@@ -31,13 +31,14 @@ By default, logging assumes the existence of `~/logs/` as a global log output di
 - [db_lib](https://github.com/tkuriyama/datautils/blob/master/datautils/docs/db_lib.md): perform common database operations
 - [df_lib](https://github.com/tkuriyama/datautils/blob/master/datautils/docs/df_lib.md): utlities for working with Pandas DataFrames
 - [dt_lib](https://github.com/tkuriyama/datautils/blob/master/datautils/docs/dt_lib.md): helper functions for datetime
-- email_lib: send SMTP emails
 - [log_setup](https://github.com/tkuriyama/datautils/blob/master/datautils/docs/log_setup.md): setup logging
 - num_lib: numerical functions
 - utils: small utility functions
 
-### ingest
+### network
+- email_lib: send SMTP emails
 - http_lib: wrapper for the `requests` library
+- sftp_lib: wrapper for the `pysftp` library
 
 ### json
 

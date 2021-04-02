@@ -2,7 +2,7 @@ from setuptools import setup
 setup(
     name="datautils",
     version="0.2.0",
-    packages=['datautils', 'datautils.core', 'datautils.ingest',
+    packages=['datautils', 'datautils.core', 'datautils.betwork',
               'datautils.json'],
     scripts=['datautils/bin/jbro'],
 
