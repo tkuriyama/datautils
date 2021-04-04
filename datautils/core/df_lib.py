@@ -223,3 +223,26 @@ def symm_diff_cols(df1: pd.DataFrame,
 def cols_to_set(df: pd.DataFrame, cols: List[str]) -> ColsSet:
     """Return given cols from DF as a set."""
     return set(tuple(ks) for ks in df_to_matrix(df[cols]))
+
+
+################################################################################
+# Merging
+
+def merge_rows(df: pd.DataFrame,
+               sum_cols: List[str],
+               avg_cols: List[str],
+               uniq_cols: List[str]
+               ) -> pd.DataFrame:
+    s = df.apply(lambda col:
+                 merge_col(col, sum_cols, avg_cols, uniq_cols))
+    return s.to_frame().T
+
+def merge_col(series: pd.Series,
+              sum_cols: List[str],
+              avg_cols: List[str],
+              uniq_cols: List[str]
+              ) -> pd.Series:
+    name = series.name
+    return (series.sum() if name in sum_cols else
+            series.mean() if name in avg_cols else
+            series.unique()[0])

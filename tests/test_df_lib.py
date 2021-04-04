@@ -211,3 +211,20 @@ class TestHelpers:
         assert f(dd) is True
         dd['mods'] = [('a', 'b')]
         assert f(dd) is False
+
+
+class TestMerge:
+    """Test merge functions."""
+
+    def test_merge_rows(self):
+        """Test merge rows"""
+        f = df_lib.merge_rows
+
+        cols = ['Ticker', 'Shares', 'Price', 'Type']
+        df = pd.DataFrame([['A', 1, 2, 'C'],
+                           ['A', 2, 3, 'D']],
+                          columns = cols)
+        df2 = pd.DataFrame([['A', 3, 2.5, 'C']],
+                           columns = cols)
+
+        assert (f(df, ['Shares'], ['Price'], []) == (df2)).all().all()
