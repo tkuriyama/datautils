@@ -251,7 +251,7 @@ def parse_schema(s: str) -> SqliteSchema:
     CREATE TABLE IF NOT EXISTS is also valid
     """
     regex=  r'(?:CREATE TABLE|CREATE TABLE IF NOT EXISTS)\s+'
-    regex += r'[A-Z0-9_.-]+\s*\((.*)\);?'
+    regex += r'["A-Z0-9_.-]+\s*\((.*)\);?'
     spec = re.findall(regex, s.replace('\n', ' '), flags=re.IGNORECASE )
     if not spec:
         logger.error(f'Schema parse failed, no cols between (): {s}')
