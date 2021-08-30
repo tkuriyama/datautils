@@ -1,5 +1,6 @@
-"""Utility for downloading files from a website.
-Uses the BeautifulSoup library for managing parsed HTML content.
+"""Utlity for scraping files from a website.
+A naive implementation that works for unauthenticated GETs of
+resources specified as static URLs with file extension.
 """
 
 from bs4 import BeautifulSoup # type: ignore
@@ -21,6 +22,7 @@ logger = log_setup.init_file_log(__name__, logging.INFO)
 
 ################################################################################
 # Download
+
 
 def download(url: str,
              extensions: List[str],
