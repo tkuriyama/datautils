@@ -36,6 +36,7 @@ By default, logging assumes the existence of `~/logs/` as a global log output di
 - utils: small utility functions
 
 ### network
+- dl_lib: naive scraper for scraping static URLs
 - email_lib: send SMTP emails
 - http_lib: wrapper for the `requests` library
 - sftp_lib: wrapper for the `pysftp` library
