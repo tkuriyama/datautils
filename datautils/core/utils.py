@@ -97,6 +97,9 @@ def valid_shape(m: Matrix[T]) -> bool:
 def load_module(path: str, name: str):
     """Dynamically load module at given path."""
     spec = importlib.util.spec_from_file_location(name, path)
+    if not spec:
+        return None
+
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m) # type: ignore
     return m
