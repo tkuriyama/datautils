@@ -1,7 +1,7 @@
 language: python
 
 python:
-  - "3.9"
+  - "3.10"
 
 # command to install dependencies
 before_install:
@@ -13,4 +13,4 @@ install:
   - python setup.py install
 
 # command to run tests
-script: python -m pytest
+script: python -m pytest -ignore-glob='**/*mysql*.py'
