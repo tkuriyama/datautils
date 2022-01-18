@@ -36,4 +36,3 @@ def str_to_float(n: str, style: NumberStyle = NumberStyle.US) -> float:
 def str_to_int(n: str, style: NumberStyle = NumberStyle.US) -> int:
     """Parse string to integer."""
     return int(str_to_float(n, style))
-

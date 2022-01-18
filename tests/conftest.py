@@ -1,7 +1,7 @@
 """PyTest Fixtures.
 """
 
-from distutils import dir_util #type: ignore
+from distutils import dir_util # type: ignore
 from pytest import fixture # type: ignore
 import os # type: ignore
 
@@ -17,6 +17,6 @@ def datadir(tmpdir, request):
     test_dir, _ = os.path.splitext(filename)
 
     if os.path.isdir(test_dir):
-        dir_util.copy_tree(test_dir, str(tmpdir))
+        dir_util.copy_tree(test_dir, str(tmpdir)) # TODO: REPLACE
 
     return tmpdir
