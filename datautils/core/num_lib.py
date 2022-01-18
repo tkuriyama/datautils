@@ -1,19 +1,19 @@
 """Numerical functions.
 """
 
-import logging # type: ignore
-import numpy as np # type: ignore
-from typing import Collection, List, Optional, TypeVar # type: ignore
+import logging  # type: ignore
+import numpy as np  # type: ignore
+from typing import Collection, List, Optional, TypeVar  # type: ignore
 
-from datautils.core import log_setup # type: ignore
+from datautils.core import log_setup  # type: ignore
 
-################################################################################
+##########################################################################
 # Initialize Logging -- set logging level to > 50 to suppress all output
 
 logger = log_setup.init_file_log(__name__, logging.INFO)
 
 
-################################################################################
+##########################################################################
 # Floats
 
 def approx_eq(f1: float,
@@ -28,11 +28,12 @@ def approx_eq(f1: float,
     return abs(f2 - f1) <= diff
 
 
-################################################################################
+##########################################################################
 # Statistics
 
 T = TypeVar('T')
 Percentile = float
+
 
 def windsorize(xs: Collection[T],
                lower: Percentile,

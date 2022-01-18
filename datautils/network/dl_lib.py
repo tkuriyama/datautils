@@ -3,24 +3,24 @@ A naive implementation that works for unauthenticated GETs of
 resources specified as static URLs with file extension.
 """
 
-from bs4 import BeautifulSoup # type: ignore
-import logging # type: ignore
-from pathlib import Path, PurePath # Type: ignore
-from typing import List, Optional # type: ignore
+from bs4 import BeautifulSoup  # type: ignore
+import logging  # type: ignore
+from pathlib import Path, PurePath  # Type: ignore
+from typing import List, Optional  # type: ignore
 
-from datautils.core import log_setup # type: ignore
-from datautils.network import http_lib # type: ignore
-from datautils.core.utils import Error, OK, Status # type: ignore
+from datautils.core import log_setup  # type: ignore
+from datautils.network import http_lib  # type: ignore
+from datautils.core.utils import Error, OK, Status  # type: ignore
 
 
-################################################################################
+##########################################################################
 # Initialize Logging -- set logging level to > 50 to suppress all output
 
 
 logger = log_setup.init_file_log(__name__, logging.INFO)
 
 
-################################################################################
+##########################################################################
 # Download
 
 
@@ -28,8 +28,8 @@ def download(url: str,
              extensions: List[str],
              output_dir: str,
              base_url: Optional[str] = None,
-             print_progress : bool = False,
-             dry_run : bool = False
+             print_progress: bool = False,
+             dry_run: bool = False
              ) -> Status:
     """"Non-recurseive download of given extensions into output folder.
     Args
@@ -40,7 +40,7 @@ def download(url: str,
         print_progress: print download progress by file count
         dry_run: construct directory and extract urls but don't download / save
     """
-    status : Status = OK()
+    status: Status = OK()
 
     r = http_lib.get(url)
     if r.status_code != 200:
@@ -60,8 +60,7 @@ def download(url: str,
     return status
 
 
-
-################################################################################
+##########################################################################
 # parser
 
 
@@ -78,7 +77,7 @@ def parse_urls(html: str) -> List[str]:
     return links
 
 
-################################################################################
+##########################################################################
 # Processing
 
 
@@ -88,8 +87,7 @@ def filter_urls(urls: List[str], extensions: List[str]) -> List[str]:
             if url and url.strip().split('.')[-1] in extensions]
 
 
-
-################################################################################
+##########################################################################
 # Saving Content
 
 
@@ -98,7 +96,7 @@ def save_urls(urls: List[str],
               print_progress: bool,
               dry_run: bool) -> Status:
     """Save URLs."""
-    status : Status = OK()
+    status: Status = OK()
 
     try:
         root = f'./{output_dir}'
@@ -119,7 +117,6 @@ def save_urls(urls: List[str],
     return status
 
 
-
 def save_url(url: str, root: str):
     """"Save url raw content to target path."""
 
@@ -136,4 +133,3 @@ def save_url(url: str, root: str):
 
     except Exception as e:
         logger.error(f'Download or save failed: {e}')
-

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-import argparse # type: ignore
-from datautils.json import jbro # type: ignore
+import argparse  # type: ignore
+from datautils.json import jbro  # type: ignore
 
-################################################################################
+##########################################################################
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description='JSON browsing utility')

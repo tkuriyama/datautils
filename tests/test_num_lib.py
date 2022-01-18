@@ -1,11 +1,12 @@
 """Pytest suite for num_lib.
 """
 
-import numpy as np # type: ignore
+import numpy as np  # type: ignore
 
-from datautils.core import num_lib # type: Ignore
+from datautils.core import num_lib  # type: Ignore
 
-################################################################################
+##########################################################################
+
 
 class TestFloat:
     """Test float functions."""
@@ -21,6 +22,7 @@ class TestFloat:
         assert f(1.0, 0.9, 0.1) is False
         assert f(1.0, 0.99, 0.1) is True
         assert f(np.pi, 3.14159) is True
+
 
 class TestStatistics:
     """Test statistics functions."""

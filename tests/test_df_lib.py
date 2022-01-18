@@ -1,13 +1,13 @@
 """Pytest suite for db_lib.
 """
 
-import pandas as pd # type: ignore
+import pandas as pd  # type: ignore
 
-from datautils.core import df_lib # type: ignore
-from datautils.core.utils import OK # type: ignore
+from datautils.core import df_lib  # type: ignore
+from datautils.core.utils import OK  # type: ignore
 
 
-################################################################################
+##########################################################################
 
 class TestComparison:
     """Test comparison functions."""
@@ -15,14 +15,14 @@ class TestComparison:
     def test_diff_df(test):
         """Test diff_df()."""
         f = df_lib.diff_df
-        df1 = pd.DataFrame([[1,2,3],
-                            [4,5,6],
-                            [7,8,9],
+        df1 = pd.DataFrame([[1, 2, 3],
+                            [4, 5, 6],
+                            [7, 8, 9],
                             [12, 13, 14]],
                            columns=['a', 'b', 'c'])
-        df2 = pd.DataFrame([[1,2,4],
-                            [4,5,6],
-                            [7,10,9],
+        df2 = pd.DataFrame([[1, 2, 4],
+                            [4, 5, 6],
+                            [7, 10, 9],
                             [15, 16, 17]],
                            columns=['a', 'b', 'c'])
 
@@ -40,13 +40,13 @@ class TestComparison:
         """Test find mod."""
         f = df_lib.find_mods
 
-        df1 = pd.DataFrame([[1,2,3],
-                            [4,5,6],
-                            [7,8,9]],
+        df1 = pd.DataFrame([[1, 2, 3],
+                            [4, 5, 6],
+                            [7, 8, 9]],
                            columns=['a', 'b', 'c'])
-        df2 = pd.DataFrame([[1,2,4],
-                            [4,5,6],
-                            [7,10,9]],
+        df2 = pd.DataFrame([[1, 2, 4],
+                            [4, 5, 6],
+                            [7, 10, 9]],
                            columns=['a', 'b', 'c'])
 
         assert f(df1, df2, ['a'], ['b', 'c']) == ([], OK())
@@ -92,6 +92,7 @@ class TestComparison:
         assert all(a.reset_index(drop=True).equals(b) for (a, b) in
                    zip(f(df, df2, ['a', 'b']), quad)) is True
 
+
 class TestFilters:
     """Test filter functions."""
 
@@ -123,6 +124,7 @@ class TestFilters:
         assert f(df, [('a', [1])]).equals(df2) is True
         assert len(f(df, [('a', [])])) == 0
 
+
 class TestUniques:
     """Test uniqueness functions."""
 
@@ -145,6 +147,7 @@ class TestUniques:
         dup_df, uniq_df = f(df, ['TestKey', 'b'])
         assert dup_df.equals(pd.DataFrame())
         assert uniq_df.equals(df)
+
 
 class TestHelpers:
     """Test helper funcs."""
@@ -203,7 +206,7 @@ class TestHelpers:
     def test_empty_diff_dict(self):
         """Test empty_diff_dict."""
         f = df_lib.empty_diff_dict
-        dd : df_lib.DiffDict = {
+        dd: df_lib.DiffDict = {
             'adds': pd.DataFrame(),
             'mods': [],
             'retires': pd.DataFrame()
@@ -223,8 +226,8 @@ class TestMerge:
         cols = ['Ticker', 'Shares', 'Price', 'Type']
         df = pd.DataFrame([['A', 1, 2, 'C'],
                            ['A', 2, 3, 'D']],
-                          columns = cols)
+                          columns=cols)
         df2 = pd.DataFrame([['A', 3, 2.5, 'C']],
-                           columns = cols)
+                           columns=cols)
 
         assert (f(df, ['Shares'], ['Price'], []) == (df2)).all().all()

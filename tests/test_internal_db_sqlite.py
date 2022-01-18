@@ -1,19 +1,19 @@
 """Pytest suite for db_lib.
 """
 
-import logging # type: ignore
+import logging  # type: ignore
 
-from datautils.core import log_setup # type: ignore
-from datautils.core.utils import OK # type: ignore
-from datautils.internal import db_sqlite # type: ignore
-from datautils.internal.db_sqlite import DType # type: ignore
-#########################################################g#######################
+from datautils.core import log_setup  # type: ignore
+from datautils.core.utils import OK  # type: ignore
+from datautils.internal import db_sqlite  # type: ignore
+from datautils.internal.db_sqlite import DType  # type: ignore
+#########################################################g################
 # Supress Error logging during testing
 
 db_sqlite.logger = log_setup.init_file_log(__name__, logging.CRITICAL)
 
 
-################################################################################
+##########################################################################
 
 class TestCreate:
     """Test create table strings."""
@@ -29,7 +29,7 @@ class TestCreate:
               'fks': [],
               'pk': [],
               'uniq': []
-        }
+              }
         assert 'CREATE TABLE IF NOT EXISTS' in f(td)[0]
         td['if_not_exists'] = False
         assert ('CREATE TABLE IF NOT EXISTS' in f(td)[0]) is False
@@ -42,7 +42,7 @@ class TestCreate:
                'fks': [],
                'pk': [],
                'uniq': []
-        }
+               }
         s, status = f(td2)
         assert status == OK()
         s_ = 'CREATE TABLE IF NOT EXISTS Test(id INTEGER PRIMARY KEY\n);'
@@ -56,7 +56,7 @@ class TestCreate:
                'fks': [],
                'pk': [],
                'uniq': []
-        }
+               }
         s, status = f(td3)
         assert status == OK()
         assert (db_sqlite.parse_schema(s) ==
@@ -77,13 +77,12 @@ class TestCreate:
                         'ref_cols': ['name', 'height']}],
                'pk': ['name', 'height'],
                'uniq': ['name', 'height']
-        }
+               }
         s, status = f(td4)
         assert status == OK()
         assert (db_sqlite.parse_schema(s) ==
                 [('name', str), ('height', float)])
         assert 'name TEXT UNIQUE NOT NULL' in s
-
 
         # bad foreign key spec
         td5 = {'if_not_exists': True,
@@ -96,10 +95,9 @@ class TestCreate:
                         'ref_cols': ['name', 'height']}],
                'pk': ['name', 'height'],
                'uniq': ['name', 'height']
-        }
+               }
         s, status = f(td5)
         assert status != OK()
-
 
         # bad column spec, PK and Unique should not be used together
         td6 = {'if_not_exists': True,
@@ -108,7 +106,7 @@ class TestCreate:
                'fks': [],
                'pk': [],
                'uniq': []
-        }
+               }
         assert f(td6) != OK()
 
 
@@ -144,7 +142,6 @@ class TestSchema:
         assert f(s4) == [('TextCol', str), ('IntCol', int),
                          ('FloatCol', float)]
 
-
     def test_sqlite_apply_schema(self):
         """Test apply_schema."""
         f = db_sqlite.apply_schema
@@ -161,4 +158,3 @@ class TestSchema:
         rows3 = [['1', '1', 'a']]
         _, status = f(schema, rows3)
         assert status != OK()
-

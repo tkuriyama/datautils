@@ -1,9 +1,10 @@
 """Pytest suite for jbro
 """
 
-from datautils.json import jbro # type: ignore
+from datautils.json import jbro  # type: ignore
 
-################################################################################
+##########################################################################
+
 
 class TestSearch:
     """Test the search functions."""
@@ -63,7 +64,8 @@ class TestSearch:
         assert set(f(d2, 1, 0)) == set(['a', 'c', 'e', 'e.a'])
         assert set(f(d3, 1, 0)) == set(['a', 'a.b', 'a.c'])
 
-################################################################################
+##########################################################################
+
 
 class TestHelpers:
     """Test the various helper functions."""

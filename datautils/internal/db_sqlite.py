@@ -2,24 +2,24 @@
 For simplicity, only a subset of the sqlite specification is implemented.
 """
 
-from enum import Enum # type: ignore
-import logging # type: ignore
-import pandas as pd # type: ignore
-from typing import List, Tuple, TypedDict, TypeVar # type: ignore
-import re # type: ignore
-import sqlite3 # type: ignore
+from enum import Enum  # type: ignore
+import logging  # type: ignore
+import pandas as pd  # type: ignore
+from typing import List, Tuple, TypedDict, TypeVar  # type: ignore
+import re  # type: ignore
+import sqlite3  # type: ignore
 
-from datautils.core import log_setup # type: ignore
-from datautils.core.utils import Error, OK, Status # type: ignore
+from datautils.core import log_setup  # type: ignore
+from datautils.core.utils import Error, OK, Status  # type: ignore
 
 
-################################################################################
+##########################################################################
 # Initialize Logging -- set logging level to > 50 to suppress all output
 
 logger = log_setup.init_file_log(__name__, logging.INFO)
 
 
-################################################################################
+##########################################################################
 
 T = TypeVar('T')
 Rows = List[List[T]]
@@ -28,7 +28,7 @@ Conn = sqlite3.Connection
 Cursor = sqlite3.Cursor
 
 
-################################################################################
+##########################################################################
 # Create
 
 Col = str
@@ -37,6 +37,7 @@ Is_PK = bool
 Is_Uniq = bool
 Is_Not_Null = bool
 
+
 class DType(Enum):
     INTEGER = 0
     REAL = 1
@@ -44,12 +45,15 @@ class DType(Enum):
     BOOLEAN = 3
     BLOB = 4
 
+
 SchemaCol = Tuple[Name, DType, Is_PK, Is_Uniq, Is_Not_Null]
+
 
 class SchemaForeignKey(TypedDict):
     cols: List[Col]
     ref_table: str
     ref_cols: List[Col]
+
 
 class TableDef(TypedDict):
     if_not_exists: bool
@@ -58,6 +62,7 @@ class TableDef(TypedDict):
     fks: List[SchemaForeignKey]
     pk: List[Col]
     uniq: List[Col]
+
 
 def create(cur: Cursor, stmt: str) -> Status:
     """Create table."""
@@ -70,6 +75,7 @@ def create(cur: Cursor, stmt: str) -> Status:
         logger.error(f'Create statement exception: {stmt}; {e}')
         status = Error(str(e))
     return status
+
 
 def gen_create_stmt(td: TableDef) -> Tuple[str, Status]:
     """Translate TableDef into Create Table statement."""
@@ -90,16 +96,19 @@ def gen_create_stmt(td: TableDef) -> Tuple[str, Status]:
 
     return stmt, status
 
+
 def gen_create(if_not_exists: bool, name: str) -> Tuple[str, Status]:
     """Generate Create substring."""
     s = (f'CREATE TABLE {name}' if if_not_exists is False else
          f'CREATE TABLE IF NOT EXISTS {name}')
     return s, OK()
 
+
 def gen_cols(cols: List[SchemaCol]) -> Tuple[str, Status]:
     """Generate columns substring."""
     status: Status
-    if not cols: return '', OK()
+    if not cols:
+        return '', OK()
 
     s, status = '', OK()
     for col in cols:
@@ -114,6 +123,7 @@ def gen_cols(cols: List[SchemaCol]) -> Tuple[str, Status]:
 
     return s, status
 
+
 def gen_fks(fks: List[SchemaForeignKey]) -> Tuple[str, Status]:
     """Generate Foreign Keys substring."""
     status: Status
@@ -121,7 +131,8 @@ def gen_fks(fks: List[SchemaForeignKey]) -> Tuple[str, Status]:
     for fk in fks:
         fk_cols, fk_ref_cols = fk['cols'], fk['ref_cols']
         if len(fk_cols) != len(fk_ref_cols):
-            s, status = '', Error(f'Length mismatch {fk_cols} vs {fk_ref_cols}')
+            s, status = '', Error(
+                f'Length mismatch {fk_cols} vs {fk_ref_cols}')
             break
 
         cols, ref_cols = ', '.join(fk_cols), ', '.join(fk_ref_cols)
@@ -129,6 +140,7 @@ def gen_fks(fks: List[SchemaForeignKey]) -> Tuple[str, Status]:
         s += f'FOREIGN KEY({cols}) REFERENCES {ref_table}({ref_cols}),\n'
 
     return f'{s}', status
+
 
 def gen_pk_uniq(pk: List[Col], uniq: List[Col]) -> Tuple[str, Status]:
     """Generate Primary Key or Unique substring."""
@@ -140,6 +152,7 @@ def gen_pk_uniq(pk: List[Col], uniq: List[Col]) -> Tuple[str, Status]:
          f'{s_pk},\n{s_uniq}\n')
     return s, OK()
 
+
 def dtype_to_str(dt: DType) -> str:
     """Map DType to string."""
     return ('INTEGER' if dt == DType.INTEGER else
@@ -148,6 +161,7 @@ def dtype_to_str(dt: DType) -> str:
             'BOOLEAN' if dt == DType.BOOLEAN else
             'BLOB')
 
+
 def strip_comma(s: str) -> str:
     """Strip trailing comma."""
     return (s[:-1] if s and s[-1] == ',' else
@@ -155,11 +169,12 @@ def strip_comma(s: str) -> str:
             s)
 
 
-################################################################################
+##########################################################################
 # Query
 
 RowsPair = Tuple[Rows, Status]
 SqliteSchema = List[Tuple[str, type]]
+
 
 def query(cur: Cursor, q: str, hdr: bool = False) -> RowsPair:
     """Execute SQL query string."""
@@ -178,6 +193,7 @@ def query(cur: Cursor, q: str, hdr: bool = False) -> RowsPair:
         rows, status = [], Error(str(e))
     return rows, status
 
+
 def query_df(cur: Cursor, q: str) -> Tuple[pd.DataFrame, Status]:
     """Execute SQL query string and return result as DataFrame."""
     rows, status = query(cur, q, True)
@@ -188,7 +204,7 @@ def query_df(cur: Cursor, q: str) -> Tuple[pd.DataFrame, Status]:
     return df, status
 
 
-################################################################################
+##########################################################################
 # Insert
 
 def insert(conn: Conn,
@@ -200,7 +216,8 @@ def insert(conn: Conn,
     """Attempt to execute SQL insertion into specified table."""
     status: Status
     schema, (rows_, v) = validate_insert(cur, table, rows, schema_cast)
-    if v != OK(): return v
+    if v != OK():
+        return v
 
     try:
         cols = ','.join(name for name, _ in schema)
@@ -215,6 +232,7 @@ def insert(conn: Conn,
         logger.error('Insertion exception for {}: {}'.format(i, str(e)))
 
     return status
+
 
 def validate_insert(cur: Cursor,
                     table: str,
@@ -241,7 +259,7 @@ def validate_insert(cur: Cursor,
             apply_schema(schema, rows) if schema_cast else (rows, OK()))
 
 
-################################################################################
+##########################################################################
 # Helpers
 
 def parse_schema(s: str) -> SqliteSchema:
@@ -250,9 +268,9 @@ def parse_schema(s: str) -> SqliteSchema:
     CREATE TABLE (name dtype dargs... FOREIGN KEY and UNIQUE clauses);
     CREATE TABLE IF NOT EXISTS is also valid
     """
-    regex=  r'(?:CREATE TABLE|CREATE TABLE IF NOT EXISTS)\s+'
+    regex = r'(?:CREATE TABLE|CREATE TABLE IF NOT EXISTS)\s+'
     regex += r'["A-Z0-9_.-]+\s*\((.*)\);?'
-    spec = re.findall(regex, s.replace('\n', ' '), flags=re.IGNORECASE )
+    spec = re.findall(regex, s.replace('\n', ' '), flags=re.IGNORECASE)
     if not spec:
         logger.error(f'Schema parse failed, no cols between (): {s}')
         return []
@@ -260,12 +278,14 @@ def parse_schema(s: str) -> SqliteSchema:
     cols = spec[0].split('FOREIGN')[0]
     pairs = []
     for col in cols.split(','):
-        if ignore_column(col.lower()): continue
+        if ignore_column(col.lower()):
+            continue
         tokens = col.strip().split(' ')
         if len(tokens) >= 2:
             name, dtypes = tokens[0], [t.lower() for t in tokens[1:]]
             pairs.append((name, map_dtype(dtypes)))
     return pairs
+
 
 def map_dtype(ts: List[str]) -> type:
     """Map Sqlite data types to Python type (cast functions)."""
@@ -273,9 +293,10 @@ def map_dtype(ts: List[str]) -> type:
             float if set(ts) & set(['real', 'float', 'double']) else
             str)
 
+
 def apply_schema(schema: SqliteSchema, rows: Rows) -> RowsPair:
     """Attempt to cast rows to primitive types in schema."""
-    status : Status = OK()
+    status: Status = OK()
 
     try:
         rows_ = []
@@ -288,6 +309,7 @@ def apply_schema(schema: SqliteSchema, rows: Rows) -> RowsPair:
         logger.error(msg)
 
     return rows_, status
+
 
 def ignore_column(col: str) -> bool:
     """Ignore columns that do not describe data types."""

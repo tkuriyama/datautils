@@ -3,37 +3,39 @@ For ease of testing and modularity, database operations are standalone
 functions, though the common ones are also wrapped by the DB class.
 """
 
-from enum import Enum # type: ignore
-import logging # type: ignore
-import pandas as pd # type: ignore
-from typing import List, Tuple, TypeVar, Union # type: ignore
-import sqlite3 # type: ignore
+from enum import Enum  # type: ignore
+import logging  # type: ignore
+import pandas as pd  # type: ignore
+from typing import List, Tuple, TypeVar, Union  # type: ignore
+import sqlite3  # type: ignore
 
-from datautils.core import log_setup # type: ignore
-from datautils.core.utils import Error, OK, Status # type: ignore
-from datautils.internal import db_sqlite # type: ignore
+from datautils.core import log_setup  # type: ignore
+from datautils.core.utils import Error, OK, Status  # type: ignore
+from datautils.internal import db_sqlite  # type: ignore
 
-################################################################################
+##########################################################################
 # Initialize Logging -- set logging level to > 50 to suppress all output
 
 logger = log_setup.init_file_log(__name__, logging.INFO)
 
 
-################################################################################
+##########################################################################
 
 class DB_Type(Enum):
     SQLITE = 1
     POSTGRES = 2
+
 
 T = TypeVar('T')
 Rows = List[List[T]]
 QueryResult = Union[Rows, pd.DataFrame]
 
 
-################################################################################
+##########################################################################
 
 class DB:
     """A lightweight database connection state holder."""
+
     def __init__(self,
                  db_name: str,
                  db_type: DB_Type = DB_Type.SQLITE,
@@ -43,7 +45,7 @@ class DB:
         self.db_name = db_name
         self.db_type = db_type
         self.log_level = log_level
-        self.status : Status
+        self.status: Status
         self.__connect__()
 
     def __connect__(self) -> None:
@@ -100,7 +102,7 @@ class DB:
         """Run insert."""
         if self.db_type is DB_Type.SQLITE:
             status = db_sqlite.insert(self.conn, self.cur, table, rows,
-                                    schema_cast)
+                                      schema_cast)
         else:
             status = self.INVALID_STATUS
             logger.error('Insert failed: {}'.format(self.INVALID_STATUS.msg))
@@ -112,7 +114,7 @@ class DB:
         return status
 
 
-################################################################################
+##########################################################################
 # DB_Type Agnostic Operations
 
 def query_once(db_name: str,
@@ -127,6 +129,7 @@ def query_once(db_name: str,
     c.close()
     return ret
 
+
 def query_cols(db_name: str,
                table: str,
                db_type: DB_Type = DB_Type.SQLITE
@@ -136,6 +139,7 @@ def query_cols(db_name: str,
     ret, _ = db.query('SELECT * FROM {} LIMIT 1'.format(table), True)
     db.close()
     return ret[0]
+
 
 def insert_once(db_name: str,
                 table: str,
@@ -148,9 +152,10 @@ def insert_once(db_name: str,
     db.close()
     return status
 
+
 def close(conn) -> Status:
     """Close DB connection object."""
-    status : Status
+    status: Status
     try:
         conn.close()
         status = OK()
@@ -161,18 +166,20 @@ def close(conn) -> Status:
     return status
 
 
-################################################################################
+##########################################################################
 # SQL String Helpers
 
 V = TypeVar('V', str, int, float)
 CondTriple = Tuple[str, str, V]
 
+
 def safe_statement(stmt: str) -> bool:
     """Validate if statement is safe."""
     stmt_ = stmt.lower()
-    return ('drop table' not in stmt_ and 
+    return ('drop table' not in stmt_ and
             'delete' not in stmt_ and
             'update' not in stmt_)
+
 
 def valid_query(q: str) -> bool:
     """Validate if query string is valid."""
@@ -183,20 +190,21 @@ def valid_query(q: str) -> bool:
             'delete' not in ws and
             'insert' not in ws)
 
+
 def where(triples: List[CondTriple]) -> str:
     """Return where clause string."""
     clauses = []
     for col, op, val in triples:
-        if not val: continue # ignore clauses if comparison value missing
+        if not val:
+            continue  # ignore clauses if comparison value missing
         clause = '{} {} {}'.format(col, op, val)
         clauses.append(clause)
     return 'WHERE {}'.format(' AND '.join(clauses))
 
 
-################################################################################
+##########################################################################
 # Exposing DB-Specific Operations
 
 def gen_sqlite_create(td: db_sqlite.TableDef) -> Tuple[str, Status]:
     """Generate CREATE TABLE string from TableDef dict."""
     return db_sqlite.gen_create_stmt(td)
-

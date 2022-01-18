@@ -1,21 +1,22 @@
 """Helper for setting up module-specific logging.
 """
 
-import logging # type: ignore
-from logging.handlers import RotatingFileHandler # type: ignore
-from os.path import expanduser # type: ignore
-from typing import Optional # type: ignore
+import logging  # type: ignore
+from logging.handlers import RotatingFileHandler  # type: ignore
+from os.path import expanduser  # type: ignore
+from typing import Optional  # type: ignore
 
-################################################################################
+##########################################################################
 
 DEFAULTPATH = '~/logs/'
 
-################################################################################
+##########################################################################
+
 
 def init_file_log(fname: str,
                   level: int = logging.INFO,
                   fmt: Optional[logging.Formatter] = None,
-                  fpath:  str = DEFAULTPATH,
+                  fpath: str = DEFAULTPATH,
                   ) -> logging.Logger:
     """Initialize and return a file logger."""
     logger = logging.getLogger(fname)

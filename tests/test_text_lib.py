@@ -3,6 +3,7 @@
 
 from datautils.core import text_lib
 
+
 class TestNumbers:
     """Test number functions."""
 

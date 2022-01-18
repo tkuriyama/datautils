@@ -1,7 +1,8 @@
 """Pytest suite for http_lib.
 """
 
-from datautils.network import http_lib # type: ignore
+from datautils.network import http_lib  # type: ignore
+
 
 class TestHelpers:
     """Test helper functions."""

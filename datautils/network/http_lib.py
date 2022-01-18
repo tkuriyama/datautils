@@ -1,30 +1,31 @@
 """Lightweight wrapper for the requests library.
 """
 
-import json # type: ignore
-import logging # type: ignore
-import requests # type: ignore
-from typing import Dict, List, Optional, TypedDict # type: ignore
+import json  # type: ignore
+import logging  # type: ignore
+import requests  # type: ignore
+from typing import Dict, List, Optional, TypedDict  # type: ignore
 
-from datautils.core import log_setup # type: ignore
-from datautils.core.utils import Error, OK, Status # type: ignore
+from datautils.core import log_setup  # type: ignore
+from datautils.core.utils import Error, OK, Status  # type: ignore
 
-################################################################################
+##########################################################################
 # Initialize Logging -- set logging level to > 50 to suppress all output
 
 logger = log_setup.init_file_log(__name__, logging.INFO)
 
 
-################################################################################
+##########################################################################
 
 class AuthDict(TypedDict):
     user: str
     pwd: str
 
+
 MaybeAuth = Optional[AuthDict]
 
 
-################################################################################
+##########################################################################
 # Get
 
 def get(url: str, auth: MaybeAuth = None) -> requests.Response:
@@ -37,6 +38,7 @@ def get(url: str, auth: MaybeAuth = None) -> requests.Response:
         logger.warning('Request to {} returned code {}'.format(url,
                                                                r.status_code))
     return r
+
 
 def get_save_text(url: str, fname: str, auth: MaybeAuth = None) -> Status:
     """Get and attempt to save text response to file."""
@@ -57,6 +59,7 @@ def get_save_text(url: str, fname: str, auth: MaybeAuth = None) -> Status:
         logger.info(msg)
 
     return status
+
 
 def get_save_json(url: str, fname: str, auth: MaybeAuth = None) -> Status:
     """Get and attempt to save JSON response to file."""
@@ -79,7 +82,7 @@ def get_save_json(url: str, fname: str, auth: MaybeAuth = None) -> Status:
     return status
 
 
-################################################################################
+##########################################################################
 # Helpers
 
 def url_join(paths: List[str], params: Optional[Dict[str, str]] = None) -> str:

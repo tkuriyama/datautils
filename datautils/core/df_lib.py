@@ -1,35 +1,37 @@
 """Convenience functions for working with Pandas DataFrames.
 """
 
-from collections import OrderedDict # type: ignore
-import logging # type: ignore
-import pandas as pd # type: ignore
+from collections import OrderedDict  # type: ignore
+import logging  # type: ignore
+import pandas as pd  # type: ignore
 from typing import (Collection, List, Set, Sequence, Tuple,
-                    TypedDict, TypeVar) # type: ignore
+                    TypedDict, TypeVar)  # type: ignore
 
-from datautils.core import log_setup # type: ignore
-from datautils.core.utils import Error, OK, Matrix, Status # type: ignore
+from datautils.core import log_setup  # type: ignore
+from datautils.core.utils import Error, OK, Matrix, Status  # type: ignore
 
 
-################################################################################
+##########################################################################
 # Initialize Logging -- set logging level to > 50 to suppress all output
 
 logger = log_setup.init_file_log(__name__, logging.INFO)
 
 
-################################################################################
+##########################################################################
 # Logical Diff
 
 Key = str
 Col = str
 Val = str
-Delta = Tuple[Col, Val, Val] # (col, old new)
+Delta = Tuple[Col, Val, Val]  # (col, old new)
 Mod = Tuple[List[Key], List[Delta]]
+
 
 class DiffDict(TypedDict):
     adds: pd.DataFrame
     mods: List[Mod]
     retires: pd.DataFrame
+
 
 def diff_df(df1: pd.DataFrame,
             df2: pd.DataFrame,
@@ -37,7 +39,7 @@ def diff_df(df1: pd.DataFrame,
             ignores: List[Col]
             ) -> Tuple[DiffDict, Status]:
     """Find diffs as a DiffDict of changes from df1 to df2."""
-    dd : DiffDict = {'adds': None, 'mods': [], 'retires': None}
+    dd: DiffDict = {'adds': None, 'mods': [], 'retires': None}
 
     dim_status = compare_dims(df1, df2, True, False)
     if dim_status != OK():
@@ -49,6 +51,7 @@ def diff_df(df1: pd.DataFrame,
         return dd, dim_status
 
     return {'adds': new_df, 'mods': mods, 'retires': retire_df}, OK()
+
 
 def find_mods(df1: pd.DataFrame,
               df2: pd.DataFrame,
@@ -62,15 +65,16 @@ def find_mods(df1: pd.DataFrame,
     if dim_status != OK():
         return [], dim_status
 
-    f = lambda x: x.sort_values(by=keys).reset_index(drop=True)
+    def f(x): return x.sort_values(by=keys).reset_index(drop=True)
     df1_, df2_ = f(df1), f(df2)
 
     mask = (df1_ != df2_).any(axis=1)
     df = df1_[mask].merge(df2_[mask], on=keys, suffixes=['_old', '_new'])
-    pairs =  [gen_mod(t._asdict(), keys, diff_cols)
-              for t in df.itertuples(index=False)]
+    pairs = [gen_mod(t._asdict(), keys, diff_cols)
+             for t in df.itertuples(index=False)]
 
     return [pair for pair in pairs if pair[1]], OK()
+
 
 def gen_mod(d: OrderedDict, keys: List[Col], diff_cols: List[Col]) -> Mod:
     """Generate Mod for a single row."""
@@ -82,20 +86,22 @@ def gen_mod(d: OrderedDict, keys: List[Col], diff_cols: List[Col]) -> Mod:
             vs.append((col, str(v_old), str(v_new)))
     return ks, vs
 
+
 def symm_diff_df(df1: pd.DataFrame,
                  df2: pd.DataFrame,
                  cols: List[Col]
                  ) -> Tuple[pd.DataFrame, pd.DataFrame,
-                            pd.DataFrame, pd.DataFrame,]:
+                            pd.DataFrame, pd.DataFrame, ]:
     """Symmetric diff on given keys.
     Return tuple of DFs: (DF1 match, DF2 match, DF1 only, DF2 only).
     """
     both, df1_only, df2_only = symm_diff_cols(df1, df2, cols)
-    f = lambda xs: gen_list_pairs(cols, xs)
+    def f(xs): return gen_list_pairs(cols, xs)
     return (filter_cols(df1, f(both)),
             filter_cols(df2, f(both)),
             filter_cols(df1, f(df1_only)),
             filter_cols(df2, f(df2_only)))
+
 
 def empty_diff_dict(dd: DiffDict) -> bool:
     """Return true if DiffDict is empty."""
@@ -104,11 +110,12 @@ def empty_diff_dict(dd: DiffDict) -> bool:
             len(dd['retires']) == 0)
 
 
-################################################################################
+##########################################################################
 # Filtering
 
 T = TypeVar('T')
 ListPair = Tuple[Col, Sequence[T]]
+
 
 def filter(df, **kwargs):
     """Filter DF with arbitrary kwargs.
@@ -122,6 +129,7 @@ def filter(df, **kwargs):
     query = ' & '.join(query_list)
     return df.query(query)
 
+
 def filter_cols(df: pd.DataFrame, conds: List[ListPair]) -> pd.DataFrame:
     """Filter DF based on one or more column value filters."""
     query_list = []
@@ -129,6 +137,7 @@ def filter_cols(df: pd.DataFrame, conds: List[ListPair]) -> pd.DataFrame:
         query_list.append(f'{col}.isin({str(vals)})')
     query = ' & '.join(query_list)
     return df.query(query)
+
 
 def gen_list_pairs(cols: List[Col],
                    seqs: Collection[Sequence]
@@ -140,7 +149,7 @@ def gen_list_pairs(cols: List[Col],
     return pairs
 
 
-################################################################################
+##########################################################################
 # Uniqueness
 
 def split_unique(df: pd.DataFrame, keys: List[Col],) -> pd.DataFrame:
@@ -168,7 +177,7 @@ def split_unique(df: pd.DataFrame, keys: List[Col],) -> pd.DataFrame:
     return dup_df, uniq_df
 
 
-################################################################################
+##########################################################################
 # Converters
 
 def df_to_matrix(df: pd.DataFrame, hdr: bool = False) -> Matrix:
@@ -176,16 +185,18 @@ def df_to_matrix(df: pd.DataFrame, hdr: bool = False) -> Matrix:
     m = df.to_numpy().tolist()
     return m if not hdr else [list(df.columns)] + m
 
+
 def matrix_to_df(m: Matrix, hdr: bool = True) -> pd.DataFrame:
     """Convert list of lists to DF."""
     return (pd.DataFrame(m) if not hdr else
             pd.DataFrame(m[1:], columns=m[0]))
 
 
-################################################################################
+##########################################################################
 # Helpers
 
 ColsSet = Set[Tuple[Col, ...]]
+
 
 def compare_dims(df1: pd.DataFrame,
                  df2: pd.DataFrame,
@@ -211,6 +222,7 @@ def compare_dims(df1: pd.DataFrame,
                         f'{rows1} x {cols1} vs {rows2} x {cols2}'))
     return status
 
+
 def symm_diff_cols(df1: pd.DataFrame,
                    df2: pd.DataFrame,
                    cols: List[Col]
@@ -220,12 +232,13 @@ def symm_diff_cols(df1: pd.DataFrame,
     k2 = cols_to_set(df2, cols)
     return k1 & k2, k1 - k2, k2 - k1
 
+
 def cols_to_set(df: pd.DataFrame, cols: List[str]) -> ColsSet:
     """Return given cols from DF as a set."""
     return set(tuple(ks) for ks in df_to_matrix(df[cols]))
 
 
-################################################################################
+##########################################################################
 # Merging
 
 def merge_rows(df: pd.DataFrame,
@@ -236,6 +249,7 @@ def merge_rows(df: pd.DataFrame,
     s = df.apply(lambda col:
                  merge_col(col, sum_cols, avg_cols, uniq_cols))
     return s.to_frame().T
+
 
 def merge_col(series: pd.Series,
               sum_cols: List[str],

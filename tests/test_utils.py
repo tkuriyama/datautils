@@ -1,9 +1,10 @@
 """PyTest suite for utils.py
 """
 
-from datautils.core import utils # type: ignore
+from datautils.core import utils  # type: ignore
 
-################################################################################
+##########################################################################
+
 
 class TestListUtils:
     """Test List utility functions."""
@@ -42,7 +43,6 @@ class TestListUtils:
         quoted = [['A', 'B', 'C'], ['1', '2', '3,4']]
         assert utils.csv_to_matrix(t3, ',', True) == quoted
 
-
     def test_prepend_col(self):
         """Test matrix column prepend."""
         f = utils.prepend_col
@@ -64,7 +64,7 @@ class TestListUtils:
     def test_drop_col(self):
         """Test drop_col"""
         f = utils.drop_col
-        m = [[1,2,3], [4,5,6]]
+        m = [[1, 2, 3], [4, 5, 6]]
         assert f(3, m) == m
         assert f(2, m) == [[1, 2], [4, 5]]
         assert f(-1, m) == m
@@ -73,9 +73,9 @@ class TestListUtils:
     def test_replace_with(self):
         """Test replace_with matrix function."""
         f = utils.replace_with
-        g = lambda x: x+1
-        m = [[1,2,3], [4,5,6]]
-        assert f(m, 1, g) == [[1,3,3], [4,6,6]]
+        def g(x): return x + 1
+        m = [[1, 2, 3], [4, 5, 6]]
+        assert f(m, 1, g) == [[1, 3, 3], [4, 6, 6]]
         assert f(m, 4, g) == m
 
     def test_valid_shape(self):
@@ -84,6 +84,6 @@ class TestListUtils:
 
         assert f([[0], [1]]) is True
         assert f([]) is True
-        assert f([[1,2], [3,4], [5,6]]) is True
-        assert f([[0], [1,2]]) is False
+        assert f([[1, 2], [3, 4], [5, 6]]) is True
+        assert f([[0], [1, 2]]) is False
         assert f([[], [1]]) is False

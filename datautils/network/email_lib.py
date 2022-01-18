@@ -1,28 +1,31 @@
 """A lightweight SMTP email sender.
 """
 
-from email.mime.text import MIMEText # type: ignore
-import logging # type: ignore
-from smtplib import SMTP_SSL as SMTP # type: ignore
-import sys # type: ignore
-from typing import (List, TypedDict) # type: ignore
+from email.mime.text import MIMEText  # type: ignore
+import logging  # type: ignore
+from smtplib import SMTP_SSL as SMTP  # type: ignore
+import sys  # type: ignore
+from typing import (List, TypedDict)  # type: ignore
 
-from datautils.core import log_setup # type: ignore
+from datautils.core import log_setup  # type: ignore
 
-################################################################################
+##########################################################################
 # Initialize Logging -- set logging level to > 50 to suppress all output
 
 logger = log_setup.init_file_log(__name__, logging.INFO)
 
-################################################################################
+##########################################################################
+
 
 class AuthDict(TypedDict):
     user: str
     pwd: str
 
+
 Html = str
 
-################################################################################
+##########################################################################
+
 
 def send(subject: str,
          fromAddr: str,

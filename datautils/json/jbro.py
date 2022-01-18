@@ -2,26 +2,28 @@
 Simple command-line utility for inspecting contents of JSON files
 """
 
-import json # type: ignore
-import logging # type: ignore
-from subprocess import Popen, PIPE # type: ignore
-from typing import List, Optional # type: ignore
+import json  # type: ignore
+import logging  # type: ignore
+from subprocess import Popen, PIPE  # type: ignore
+from typing import List, Optional  # type: ignore
 
-from datautils.core import log_setup # type: ignore
-from datautils.core import utils # type: ignore
+from datautils.core import log_setup  # type: ignore
+from datautils.core import utils  # type: ignore
 
-################################################################################
+##########################################################################
 # Initialize Logging -- set logging level to > 50 to suppress all output
 
 logger = log_setup.init_file_log(__name__, logging.WARNING)
 
-################################################################################
+##########################################################################
+
 
 def main(args):
     """Process args from argparse."""
     logger.debug('Running with args: {}'.format(str(args)))
     data = test_json(args.filename)
-    if not data: return
+    if not data:
+        return
 
     if args.describe:
         describe(data, args.quiet)
@@ -47,8 +49,9 @@ def main(args):
         print(data_str)
         less(data_str)
 
-################################################################################
+##########################################################################
 # Inspection Functions
+
 
 def describe(data: dict, quiet: bool) -> None:
     """Describe key attributes of data."""
@@ -59,6 +62,7 @@ def describe(data: dict, quiet: bool) -> None:
     print('Max depth      {:,d}'.format(max_depth(data)))
     print('Total chars    {:,d}'.format(len(json.dumps(data))))
 
+
 def sample(data: dict, n: int, quiet: bool, truncate: bool) -> None:
     """Sample first n (key, value) pairs."""
     msg = '\n> Sample first {:,d} (key, value) pairs'.format(n)
@@ -68,17 +72,20 @@ def sample(data: dict, n: int, quiet: bool, truncate: bool) -> None:
     pairs = [join_pair(key, data[key], truncate) for key in keys]
     print('\n'.join(pairs))
 
+
 def get_chars(data: dict, n: int, quiet: bool) -> None:
     """Print first n chars."""
     print('\n> Show first {:,d} chars'.format(n) if not quiet else '\n')
     data_str = json.dumps(data, indent=2, sort_keys=True)
     print(data_str[:n])
 
+
 def get_keys(data: dict, quiet: bool, truncate: bool) -> None:
     """List all top-level keys in data."""
     print('\n> List all top-level keys' if not quiet else '\n')
 
     print_freq_keys(list(data), truncate)
+
 
 def get_all_keys(search_d: dict, quiet: bool, truncate: bool) -> list:
     """Retrieve all keys in dict (BFS) in format key1.key2..."""
@@ -101,8 +108,9 @@ def get_all_keys(search_d: dict, quiet: bool, truncate: bool) -> list:
     print_freq_keys(all_keys, truncate)
     return all_keys
 
-################################################################################
+##########################################################################
 # Search Functions
+
 
 def find(data: dict, key: str, quiet: bool, truncate: bool) -> None:
     """Attempt to find key in dict, where nested key in form key1.key2..."""
@@ -119,6 +127,7 @@ def find(data: dict, key: str, quiet: bool, truncate: bool) -> None:
     else:
         print('Key not found.')
 
+
 def _find_key(d: dict, keys: List[str]):
     """Implementation of find().
     Attempt to find the nested key key1.key2... and return its value.
@@ -133,10 +142,12 @@ def _find_key(d: dict, keys: List[str]):
             _find_key(d[key], keys[1:]) if key in d else
             None)
 
+
 def _find_key_list(lst: list, keys: List[str]) -> list:
     """Map _find_key over list elems that are dicts."""
     found = [_find_key(elem, keys) for elem in lst if isinstance(elem, dict)]
     return [elem for elem in found if elem is not None]
+
 
 def find_rec(data: dict, key: str, quiet: bool, truncate: bool) -> None:
     """Find (unnested ) key recursively in data, return all occurences."""
@@ -149,6 +160,7 @@ def find_rec(data: dict, key: str, quiet: bool, truncate: bool) -> None:
         print('\n'.join(found))
     else:
         print('Key not found.')
+
 
 def _find_key_rec(search_d: dict, search_key: str):
     """Implementation of find_rec().
@@ -172,8 +184,9 @@ def _find_key_rec(search_d: dict, search_key: str):
 
     return hits
 
-################################################################################
+##########################################################################
 # Helpers
+
 
 def test_json(fname: str) -> Optional[dict]:
     """Return either JSON or None (if JSON parse fails)."""
@@ -188,22 +201,26 @@ def test_json(fname: str) -> Optional[dict]:
         data = None
     return data
 
+
 def count_keys(d: dict) -> int:
     """Count number of keys in given dict."""
     return (0 if not isinstance(d, dict) else
             len(d) + sum(count_keys(v) for v in d.values()))
+
 
 def max_depth(d: dict) -> int:
     """Return maximum depth of given dict."""
     return (0 if not isinstance(d, dict) or len(d) == 0 else
             1 + max(max_depth(v) for v in d.values()))
 
-def trim(val, n: int, ellipsis: str='...') -> str:
+
+def trim(val, n: int, ellipsis: str = '...') -> str:
     """Trim value to max of n chars."""
     val_str = str(val)
     trim_len = max(n - len(ellipsis), 0)
     return (val_str[:trim_len] + ellipsis if len(val_str) > n else
             val_str)
+
 
 def join_pair(v1, v2, truncate, sep='\t', left=20, max_len=80):
     """Format (v1, v2) pair as single string appropriate for printing.
@@ -221,6 +238,7 @@ def join_pair(v1, v2, truncate, sep='\t', left=20, max_len=80):
     return (sep.join([trim(v1, left), trim(v2, right)]) if truncate else
             sep.join([str(v1), str(v2)]))
 
+
 def print_freq_keys(keys: List[str], truncate: bool) -> None:
     """Print keys with frequency counts."""
     if keys:
@@ -231,10 +249,10 @@ def print_freq_keys(keys: List[str], truncate: bool) -> None:
     else:
         print('Empty input.')
 
+
 def less(data):
     """Pretty print JSON and pipe to less."""
     p = Popen('less', stdin=PIPE)
     p.stdin.write(data.encode())
     p.stdin.close()
     p.wait()
-

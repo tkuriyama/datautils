@@ -1,12 +1,12 @@
 """Pytest suite for db_lib.
 """
 
-import datetime as dt # type: ignore
+import datetime as dt  # type: ignore
 
-from datautils.core import dt_lib # type: ignore
+from datautils.core import dt_lib  # type: ignore
 
 
-################################################################################
+##########################################################################
 
 class TestDate:
     """Test date functions."""
@@ -28,10 +28,10 @@ class TestDate:
         assert fg(d1, 200) == fgs(d1, 200)[-1]
 
         # test get_dates
-        assert fgs(d1, -2) == [dt.date(2021, 1,  30),
+        assert fgs(d1, -2) == [dt.date(2021, 1, 30),
                                dt.date(2021, 1, 31),
                                dt.date(2021, 2, 1)]
-        assert fgs(d1, -2, True) == [dt.date(2021, 1,  28),
+        assert fgs(d1, -2, True) == [dt.date(2021, 1, 28),
                                      dt.date(2021, 1, 29),
                                      dt.date(2021, 2, 1)]
         assert fgs(d1, 2, True) == [dt.date(2021, 2, 1),
@@ -43,6 +43,7 @@ class TestDate:
         assert fgs(d1, 2, True, hs) == [dt.date(2021, 2, 1),
                                         dt.date(2021, 2, 2),
                                         dt.date(2021, 2, 4)]
+
 
 class TestParsers:
     """Test parser functions."""
@@ -66,13 +67,14 @@ class TestParsers:
         assert f(2021, 12, 32) is None
         assert f(2021, 12, 1) == dt.date(2021, 12, 1)
 
+
 class TestHelpers:
     """Test helper functions."""
 
     def test_is_weekday(self):
         """Test is_weekday()."""
         f = dt_lib.is_weekday
-        monday =  dt.date(2021, 2, 1)
+        monday = dt.date(2021, 2, 1)
         friday = dt.date(2021, 2, 5)
         saturday = dt.date(2021, 2, 6)
         sunday = dt.date(2021, 2, 7)
@@ -87,5 +89,5 @@ class TestHelpers:
         f = dt_lib.month_to_int
         assert f('Jan') == 1
         assert f('December') == 12
-        assert f('jibberish') == None
-        assert f('janu') == None
+        assert f('jibberish') is None
+        assert f('janu') is None

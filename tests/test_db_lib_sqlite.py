@@ -1,20 +1,20 @@
 """Pytest suite for db_lib.
 """
 
-import logging # type: ignore
-import pandas as pd # type: ignore
+import logging  # type: ignore
+import pandas as pd  # type: ignore
 
-from datautils.core import db_lib, log_setup # type: ignore
-from datautils.core.utils import OK # type: ignore
-from datautils.internal import db_sqlite # type: ignore
+from datautils.core import db_lib, log_setup  # type: ignore
+from datautils.core.utils import OK  # type: ignore
+from datautils.internal import db_sqlite  # type: ignore
 
-#########################################################g#######################
+#########################################################g################
 # Supress Error logging during testing
 
 db_lib.logger = log_setup.init_file_log(__name__, logging.CRITICAL)
 
 
-################################################################################
+##########################################################################
 
 class TestSqlite:
     """Test Sqlite operations."""
@@ -91,14 +91,14 @@ class TestSqlite:
         assert db.insert('SelectTest', rows) != OK()
 
         # float('a') should fail schema casting
-        rows2  = [['a', 1.0, 1.0],
-                ['a', 1, 'a']]
+        rows2 = [['a', 1.0, 1.0],
+                 ['a', 1, 'a']]
         assert db.insert('SelectTest2', rows2) != OK()
 
         db.close()
 
 
-################################################################################
+##########################################################################
 
 class TestsQLHelpers:
     """Test SQL string helper functions."""
