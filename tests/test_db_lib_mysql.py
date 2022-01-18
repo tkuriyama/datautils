@@ -56,7 +56,6 @@ class TestMySQL:
         db_lib.insert_once(HOST, 'TestCreate', rows,
                            db_lib.DB_Type.MYSQL, USER, PWD, NAME)
 
-
     def test_query_once(self, mysql_db_obj):
         """Test simple query_once variants."""
         q = 'SELECT * FROM TestCreate WHERE id > 0'
