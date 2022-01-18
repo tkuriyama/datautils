@@ -160,8 +160,8 @@ def gen_fks(fks: List[SchemaForeignKey]) -> Tuple[str, Status]:
 
 def gen_pk_uniq(pk: List[Col], uniq: List[Col]) -> Tuple[str, Status]:
     """Generate Primary Key or Unique substring."""
-    s_pk = '' if not pk else 'PRIMARY KEY({})'.format(', '.join(pk))
-    s_uniq = '' if not uniq else 'UNIQUE({})'.format(', '.join(uniq))
+    s_pk = '' if not pk else 'PRIMARY KEY ({})'.format(', '.join(pk))
+    s_uniq = '' if not uniq else 'UNIQUE ({})'.format(', '.join(uniq))
     s = ('' if not s_pk and not s_uniq else
          f'{s_pk}\n' if s_pk and not s_uniq else
          f'{s_uniq}\n' if s_uniq and not s_pk else

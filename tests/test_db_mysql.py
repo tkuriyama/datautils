@@ -102,3 +102,13 @@ class TestMySQL:
                                  [[0, 'AAPL']],
                                  False)
         assert status != OK()
+
+
+################################################################################
+
+
+class TestMySQLHelpers:
+
+    def test_dtype_to_str(self):
+        """Test DType to string conversion."""
+        assert INTEGER.to_str() == 'INTEGER'

@@ -6,6 +6,8 @@ import os  # type: ignore
 import pymysql  # type: ignore
 from pytest import fixture  # type: ignore
 
+from datautils.core import db_lib # type: ignore
+
 
 ##########################################################################
 
@@ -35,3 +37,15 @@ def mysql_db():
     cursor = conn.cursor()
     yield (conn, cursor)
     conn.close()
+
+
+@fixture
+def mysql_db_obj():
+    """Provide connection and cursor objects for MySQL test DB."""
+    db = db_lib.DB('localhost',
+                   db_lib.DB_Type.MYSQL,
+                   'testuser',
+                   'testpassword',
+                   'test')
+    yield db
+    db.close()
