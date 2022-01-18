@@ -98,7 +98,7 @@ class TestSqlite:
 
         db.close()
 
-################################################################################
+##########################################################################
 
 
 class TestSqliteHelpers:
@@ -114,4 +114,3 @@ class TestSqliteHelpers:
                 'BOOLEAN')
         assert (db_sqlite.dtype_to_str(db_sqlite.DType.TEXT) ==
                 'TEXT')
-

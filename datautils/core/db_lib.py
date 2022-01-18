@@ -152,8 +152,8 @@ def query_once(db_host: str,
                df: bool = False,
                db_type: DB_Type = DB_Type.SQLITE,
                db_user: Optional[str] = None,
-                 db_pwd: Optional[str] = None,
-                 db_name: Optional[str] = None
+               db_pwd: Optional[str] = None,
+               db_name: Optional[str] = None
                ) -> QueryResult:
     """Convenience function: run single query and close connection."""
     c = DB(db_host, db_type, db_user, db_pwd, db_name)
@@ -166,8 +166,8 @@ def query_cols(db_host: str,
                table: str,
                db_type: DB_Type = DB_Type.SQLITE,
                db_user: Optional[str] = None,
-                 db_pwd: Optional[str] = None,
-                 db_name: Optional[str] = None
+               db_pwd: Optional[str] = None,
+               db_name: Optional[str] = None
                ) -> List[str]:
     """Convenience function: get table column names."""
     db = DB(db_host, db_type, db_user, db_pwd, db_name)
@@ -181,8 +181,8 @@ def insert_once(db_host: str,
                 rows: Rows,
                 db_type: DB_Type = DB_Type.SQLITE,
                 db_user: Optional[str] = None,
-                 db_pwd: Optional[str] = None,
-                 db_name: Optional[str] = None
+                db_pwd: Optional[str] = None,
+                db_name: Optional[str] = None
                 ) -> Status:
     """Convenience function: insert and close connection."""
     db = DB(db_host, db_type, db_user, db_pwd, db_name)

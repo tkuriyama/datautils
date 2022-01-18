@@ -6,7 +6,7 @@ import os  # type: ignore
 import pymysql  # type: ignore
 from pytest import fixture  # type: ignore
 
-from datautils.core import db_lib # type: ignore
+from datautils.core import db_lib  # type: ignore
 
 
 ##########################################################################

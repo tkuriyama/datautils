@@ -12,7 +12,7 @@ from datautils.core import db_lib, log_setup  # type: ignore
 db_lib.logger = log_setup.init_file_log(__name__, logging.CRITICAL)
 
 
-################################################################################
+##########################################################################
 
 
 class TestsQLHelpers:

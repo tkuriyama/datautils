@@ -37,17 +37,16 @@ class TestMySQL:
             'if_not_exists': True,
             'cols': [('id', INTEGER, 0, 0, 1),
                      ('name', STRING, 0, 0, 1),
-                    ('description', STRING, 0, 0, 1)],
+                     ('description', STRING, 0, 0, 1)],
             'fks': [],
             'pk': [],
             'uniq': ['name', 'description']
-            }
+        }
 
         db = mysql_db_obj
         stmt, _ = db_lib.gen_mysql_create(td)
         status = db.create(stmt)
         assert status == OK()
-
 
     def test_query_once(self, mysql_db_obj):
         """Test simple query_once variants."""
@@ -63,7 +62,6 @@ class TestMySQL:
 
         ret2, _ = mysql_db_obj.query(q, True, False)
         assert ret == ret2
-
 
     def test_bad_insert(self, mysql_db_obj):
         """Test inserts with schema violations fail."""
