@@ -48,9 +48,18 @@ class TestMySQL:
         status = db.create(stmt)
         assert status == OK()
 
+    def test_insert_once(self):
+        """Test insert (may fail if data already exsits)."""
+        rows = [[1, 'myname1', 'mydesc1'],
+                [2, 'myname2', 'mydesc2']]
+
+        db_lib.insert_once(HOST, 'TestCreate', rows,
+                           db_lib.DB_Type.MYSQL, USER, PWD, NAME)
+
+
     def test_query_once(self, mysql_db_obj):
         """Test simple query_once variants."""
-        q = 'SELECT * FROM prices WHERE price > 0'
+        q = 'SELECT * FROM TestCreate WHERE id > 0'
 
         ret = db_lib.query_once(HOST, q, True, False,
                                 db_lib.DB_Type.MYSQL, USER, PWD, NAME)
@@ -66,9 +75,13 @@ class TestMySQL:
     def test_bad_insert(self, mysql_db_obj):
         """Test inserts with schema violations fail."""
         db = mysql_db_obj
-
-        db.insert('TestCreate', [], [[1, 'myname', 'mydesc']])
+        rows = [[10, 'myname10', 'mydesc10']]
+        db.insert('TestCreate', rows)
 
         # violates uniqueness
-        status = db.insert('TestCreate', [], [[1, 'myname', 'mydesc']])
+        status = db.insert('TestCreate', rows)
         assert status != OK()
+
+        ret, _ = db.query('SELECT * FROM TestCreate WHERE id=10',
+                          False, False)
+        assert len(ret) == 1

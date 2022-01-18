@@ -112,3 +112,5 @@ class TestMySQLHelpers:
     def test_dtype_to_str(self):
         """Test DType to string conversion."""
         assert INTEGER.to_str() == 'INTEGER'
+        assert FLOAT.to_str() == 'FLOAT'
+        assert STRING.to_str() == 'VARCHAR(20)'
