@@ -31,20 +31,21 @@ def approx_eq(f1: float,
 ##########################################################################
 # Statistics
 
-T = TypeVar('T')
+T = TypeVar('T', int, float)
 Percentile = float
 
 
 def windsorize(xs: Collection[T],
                lower: Percentile,
                upper: Percentile
-               ) -> List[T]:
+               ) -> List:
     """Windsorize given collection.
     Percentiles are defined in range [0.0, 100.0].
     Values are bound by the lower and upper percentile args.
     """
     if not approx_eq(lower, 100 - upper):
         logger.warning('Asymmetric bounds {} and {}'.format(lower, upper))
+    # warn misinterpretation of percentile range
     if lower < 1.0 and upper < 1.0:
         msg = 'Percentiles defined in range [0.0, 100.0], got {}, {}'
         logger.warning(msg.format(lower, upper))
