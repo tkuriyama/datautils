@@ -48,8 +48,8 @@ def windsorize(xs: Collection[T],
         msg = 'Percentiles defined in range [0.0, 100.0], got {}, {}'
         logger.warning(msg.format(lower, upper))
 
-    low_val = np.percentile(list(xs), lower, interpolation='nearest')
-    up_val = np.percentile(list(xs), upper, interpolation='nearest')
+    low_val = np.percentile(list(xs), lower, method='nearest')
+    up_val = np.percentile(list(xs), upper, method='nearest')
 
     return [low_val if x < low_val else up_val if x > up_val else x
             for x in xs]
