@@ -77,6 +77,14 @@ class TestMySQL:
         rows_, _ = db_mysql.query(cursor, 'SELECT * FROM prices')
         assert len(rows) + 1 == len(rows_)
 
+        # insert without explicit columns
+        status = db_mysql.insert(conn, cursor,
+                                 'prices',
+                                 [],
+                                 [[period + 1, 'AAPL', 100.1]],
+                                 True)
+        assert status == OK()
+
     def test_insert_fail(self, mysql_db):
         """Test normal insertion."""
         conn, cursor = mysql_db

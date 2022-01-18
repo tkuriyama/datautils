@@ -100,6 +100,7 @@ class TestSqlite:
 
 ##########################################################################
 
+
 class TestsQLHelpers:
     """Test SQL string helper functions."""
 

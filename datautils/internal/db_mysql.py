@@ -230,8 +230,9 @@ def insert(conn: Conn,
 
     try:
         cols_ = ', '.join(cols)
-        vals = ', '.join(['%s'] * len(cols))
-        i = f'INSERT INTO {table} ({cols_}) VALUES ({vals})'
+        maybe_cols = f' ({cols_})' if cols else ''
+        vals = ', '.join(['%s'] * len(rows[0]))
+        i = f'INSERT INTO {table}{maybe_cols} VALUES ({vals})'
         print(i)
         affected = cur.executemany(i, rows)
         if rows and affected > 0:
@@ -260,14 +261,12 @@ def valid_lengths(cur: Cursor,
     """
     status: Status
 
-    rows, q_status = query(cur, f'SELECT * FROM {table} LIMIT 1', True)
+    db_rows, q_status = query(cur, f'SELECT * FROM {table} LIMIT 1', True)
     if q_status != OK():
         return q_status
 
-    if len(rows[0]) == len(cols) and all(len(cols) == len(row)
-                                         for row in rows):
-        status = OK()
-    else:
-        status = Error(f'Length mismatch occured in insertioo to {table}')
+    conditions = [len(db_rows[0]) == len(cols) if cols else True,
+                  all(len(db_rows[0]) == len(row) for row in rows)]
 
-    return status
+    return (OK() if all(conditions) is True else
+            Error(f'Length mismatch occured in insertioo to {table}'))
