@@ -7,3 +7,4 @@ pytest-cov
 requests
 pysftp
 beautifulsoup4
+pymysql

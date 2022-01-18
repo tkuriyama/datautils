@@ -1,7 +1,8 @@
 from setuptools import setup
 setup(
+    python_requires='>=3.10',
     name="datautils",
-    version="0.3.0",
+    version="0.4.0",
     packages=['datautils', 'datautils.core', 'datautils.network',
               'datautils.json'],
     scripts=['datautils/bin/jbro'],
