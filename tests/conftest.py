@@ -2,8 +2,10 @@
 """
 
 from distutils import dir_util  # type: ignore
-from pytest import fixture  # type: ignore
 import os  # type: ignore
+import pymysql  # type: ignore
+from pytest import fixture  # type: ignore
+
 
 ##########################################################################
 
@@ -21,3 +23,15 @@ def datadir(tmpdir, request):
         dir_util.copy_tree(test_dir, str(tmpdir))  # TODO: REPLACE
 
     return tmpdir
+
+
+@fixture
+def mysql_db():
+    """Provide connection and cursor objects for MySQL test DB."""
+    conn = pymysql.connections.Connection(host='localhost',
+                                          user='testuser',
+                                          password='testpassword',
+                                          database='test')
+    cursor = conn.cursor()
+    yield (conn, cursor)
+    conn.close()
