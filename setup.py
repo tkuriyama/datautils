@@ -1,6 +1,6 @@
 from setuptools import setup
 setup(
-    python_requires='>=3.10',
+    python_requires='>=3.8',
     name="datautils",
     version="0.4.0",
     packages=['datautils', 'datautils.core', 'datautils.network',

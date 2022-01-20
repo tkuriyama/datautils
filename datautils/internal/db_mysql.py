@@ -6,8 +6,8 @@ from dataclasses import dataclass  # type: ignore
 from enum import Enum  # type: ignore
 import logging  # type: ignore
 import pandas as pd  # type: ignore
-from typing import List, Tuple, TypeAlias, TypedDict, TypeVar  # type: ignore
-import pymysql  # type: ignore
+from typing import Any, List, Tuple, TypedDict, TypeVar  # type: ignore
+# import pymysql  # type: ignore
 
 from datautils.core import log_setup  # type: ignore
 from datautils.core.utils import Error, OK, Status  # type: ignore
@@ -25,8 +25,8 @@ logger = log_setup.init_file_log(__name__, logging.INFO)
 T = TypeVar('T')
 Rows = List[List[T]]
 
-Conn: TypeAlias = pymysql.connections.Connection
-Cursor: TypeAlias = pymysql.cursors.Cursor
+Conn = Any  # : TypeAlias = pymysql.connections.Connection
+Cursor = Any  # : TypeAlias = pymysql.cursors.Cursor
 
 
 ##########################################################################
