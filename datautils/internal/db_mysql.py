@@ -233,7 +233,6 @@ def insert(conn: Conn,
         maybe_cols = f' ({cols_})' if cols else ''
         vals = ', '.join(['%s'] * len(rows[0]))
         i = f'INSERT INTO {table}{maybe_cols} VALUES ({vals})'
-        print(i)
         affected = cur.executemany(i, rows)
         if rows and affected > 0:
             conn.commit()
