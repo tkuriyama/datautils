@@ -47,6 +47,8 @@ class DType(Enum):
     DOUBLE = 3
     BOOLEAN = 4
     VARCHAR = 5
+    DATE = 6
+    DATETIME = 7
 
 
 @dataclass
@@ -59,6 +61,9 @@ class DTypeSpec:
                 'BIGINT' if self.dtype == DType.BIGINT else
                 'FLOAT' if self.dtype == DType.FLOAT else
                 'DOUBLE' if self.dtype == DType.DOUBLE else
+                'BOOLEAN' if self.dtype == DType.BOOLEAN else
+                'DATE' if self.dtype == DType.DATE else
+                'DATETIME' if self.dtype == DType.DATETIME else
                 f'VARCHAR({self.varchar_size})')
 
 
